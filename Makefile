@@ -4,6 +4,7 @@ LD=g++
 LDFLAGS=
 
 MKDIR=mkdir
+MKDIR_P=$(MKDIR) -p
 RMDIR=rmdir
 RM=rm -f
 CP=cp -r
@@ -24,7 +25,7 @@ SOURCES=server.cpp \
 	main.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
-default: directories build
+default: build
 
 clean:
 	@echo "RM    " $(OBJECTS) $(OUTPUT);\
@@ -34,21 +35,15 @@ clean:
 
 build: $(OUTPUT)
 
-directories:	
-	@if [ $(shell $(TEST) $(TEST_DIR) $(OBJDIR); echo $$?;) -eq 1 ]; then \
-		echo "MKDIR " $(OBJDIR)\
-		$(shell $(MKDIR) $(OBJDIR)); 	\
-	fi
-	@if [ $(shell $(TEST) $(TEST_DIR) $(BINDIR); echo $$?;) -eq 1 ]; then \
-		echo "MKDIR " $(BINDIR)\
-		$(shell $(MKDIR) $(BINDIR)); \
-	fi
+assure_dir=@$(MKDIR_P) $(@D)
 
 $(OUTPUT): $(OBJECTS)
-	@echo "LD     $<";\
+	$(assure_dir)
+	@echo "LD     $@";\
 	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
 
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	@echo "CPP    $<";\
+	$(assure_dir)
+	@echo "CPP    $@";\
 	$(CPP) $(INCLUDES) $(CPPFLAGS) $< -o $@
