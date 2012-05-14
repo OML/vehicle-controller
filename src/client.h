@@ -28,13 +28,13 @@ class client
 	public:
 		client(int fd);
 
-		size_t          write(const char* data, size_t len);
-		size_t		read(const char* buffer, size_t maxlen);
+		size_t          	write(std::shared_ptr<const char> data, size_t len);
+		size_t				read(std::shared_ptr<char> buffer, size_t maxlen);
 	friend class event_loop;
 	protected:
-	        void            data_available();
-		size_t		bytes_available();
-		int		fd;
+	    void            	data_available();
+		size_t				bytes_available();
+		int					fd;
 
 	private:
 

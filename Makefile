@@ -3,15 +3,25 @@ CPPFLAGS=-Wall -c -std=c++0x
 LD=g++
 LDFLAGS=
 
-MKDIR=mkdir
-MKDIR_P=$(MKDIR) -p
-RMDIR=rmdir
-RM=rm -f
-CP=cp -r
-MV=mv
-TOUCH=touch
-TEST=test
-TEST_DIR=-d
+ifdef SystemRoot # Windows
+	MKDIR=mkdir
+	MKDIR_P=$(MKDIR)
+	RMDIR=rmdis /S
+	RM=rm /Q
+	CP=copy
+	MV=move
+	
+else	# Linux
+	MKDIR=mkdir
+	MKDIR_P=$(MKDIR) -p
+	RMDIR=rmdir
+	RM=rm -f
+	CP=cp -r
+	MV=mv
+	TOUCH=touch
+	TEST=test
+	TEST_DIR=-d
+endif
 
 BINDIR=bin
 OBJDIR=obj

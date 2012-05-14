@@ -36,11 +36,11 @@ void client::data_available()
 	
 }
 
-size_t client::write(cons char* data, size_t size)
+size_t client::write(std::shared_ptr<const char> data, size_t size)
 {
 }
 
-size_t client::read(const char* buffer, size_t max)
+size_t client::read(std::shared_ptr<char> buffer, size_t max)
 {
 }
 
