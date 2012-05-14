@@ -18,6 +18,8 @@
 
 #include "client.h"
 
+#include "prot_tab2car.h"
+
 client::client(int fd):
         fd(fd)
 {
@@ -26,5 +28,22 @@ client::client(int fd):
 
 
 void client::data_available()
+{
+	char buffer[bytes_available()];
+	tab2car_packet* pack = (tab2car_packet*)&buffer;
+
+	read(&buffer, bytes_available());
+	
+}
+
+size_t client::write(cons char* data, size_t size)
+{
+}
+
+size_t client::read(const char* buffer, size_t max)
+{
+}
+
+size_t client::bytes_available()
 {
 }

@@ -20,15 +20,24 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
+
+#include <sys/types.h>
+
 class client
 {
 	public:
 		client(int fd);
 
+		size_t          write(const char* data, size_t len);
+		size_t		read(const char* buffer, size_t maxlen);
 	friend class event_loop;
 	protected:
 	        void            data_available();
+		size_t		bytes_available();
 		int		fd;
+
+	private:
+
 };
 
 
