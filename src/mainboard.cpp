@@ -18,9 +18,11 @@
 
 #include "mainboard.h"
 
+mainboard* mainboard::instance = NULL;
+
 mainboard::mainboard(const char* sfile): file()
 {
-        flags = 0;
+        instance = this;
 }
 
 void mainboard::data_available()

@@ -26,6 +26,8 @@
 
 #include "client.h"
 
+#include "mainboard.h"
+
 carma::carma(client* c): protocol(c)
 {
 
@@ -43,11 +45,43 @@ int carma::init()
 
 int carma::disconnect()
 {
+        return -1;
+}
+
+int carma::read_sync(size_t bytes)
+{
+        carma_t2c_sync_request pack;
+        size_t size = cl->read((char*)&pack, sizeof(carma_t2c_sync_request));
+        if(size < sizeof(carma_t2c_sync_request)) {
+                std::cout << "Protocol error - Invalid packet size" << std::endl;
+                return -1;
+        }
+        MAINBOARD->write((char*)&pack, sizeof(carma_t2c_sync_request));
+
+
+
+        carma_c2t_sync_response res;
+        res.opcode = COP_SYNC;
+        res.motors[0].throttle = 42;
+        res.motors[0].voltage = 0;
+        res.motors[0].current = 0;
+        res.motors[0].temperature = 1000;
+        res.motors[3] = res.motors[2]
+                = res.motors[1] = res.motors[0];
+        res.gyro[0] = 32;
+        res.gyro[1] = 23;
+        res.gyro[2] = 5;
+        res.accu_voltage = 48000;
+        res.accu_current = 60000;
+
+        cl->write((char*)&pack, sizeof(carma_c2t_sync_response));
+
+        return 0;
 }
 
 int carma::read_list_names(size_t bytes)
 {
-        std::string path = "/home/leon";
+        std::string path = "/home/leon/workspace/vehicle-controller/resources/sounds/";
         std::vector<std::string> files;
         char* buffer;
         DIR* dp;
@@ -56,7 +90,7 @@ int carma::read_list_names(size_t bytes)
 
         if((dp = opendir(path.c_str())) == NULL) {
                 std::cout << "Unable to open sound directory" << std::endl;
-                goto err;
+                return -1;
         }
 
         while((dirp = readdir(dp)) != NULL) {
@@ -82,38 +116,35 @@ int carma::read_list_names(size_t bytes)
 
         if(cl->write(buffer, 0) < 0) {
                 std::cout << "Protocol error - Write fail" << std::endl;
-                goto err;
+                return -1;
         }
 
         return 0;
-err:
-        return -1;
 }
 
 int carma::start_reading(size_t bytes)
 {
         std::cout << "Carma start reading" << std::endl;
-        size_t cur = 0;
-        while(cur < bytes) {
-                uint8_t opcode;
-                if(cl->read((char*)&opcode, 1) == -1) {
-                        std::cout << "Protocol error" << std::endl;
-                        return -1;
-                }
 
-                switch(opcode) {
-                        case COP_SYNC:
-                                if(read_sync(bytes-1) < 0)
-                                        return -1;
-                                break;
-                        case COP_LIST_FILES:
-                                if(read_list_names(bytes-1) < 0)
-                                        return -1;
-                                break;
-                        default:
-                                std::cout << "Protocol error - Invalid opcode (" << opcode << ")" << std::endl;
-                                return -1;
-                }
+        uint8_t opcode;
+        if(cl->read((char*)&opcode, 1) == -1) {
+                std::cout << "Protocol error" << std::endl;
+                return -1;
         }
+
+        switch(opcode) {
+                case COP_SYNC:
+                        if(read_sync(bytes) < 0)
+                                return -1;
+                        break;
+                case COP_LIST_FILES:
+                        if(read_list_names(bytes) < 0)
+                                return -1;
+                        break;
+                default:
+                        std::cout << "Protocol error - Invalid opcode (" << opcode << ")" << std::endl;
+                        return -1;
+        }
+
         return 0;
 }

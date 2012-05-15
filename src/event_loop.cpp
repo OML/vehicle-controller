@@ -44,7 +44,7 @@ void event_loop::register_file(file* f)
 
 int event_loop::flush()
 {
-        std::cout << "Flush not ipmlemented" << std::endl;
+        std::cout << "Flush not implemented" << std::endl;
         return 0;
 }
 

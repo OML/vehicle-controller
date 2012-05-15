@@ -39,7 +39,7 @@ void client::data_available()
 {
         if(bytes_available() == 0)
                 close();
-        // Read shit and die
+
         proto->start_reading(bytes_available());
 }
 

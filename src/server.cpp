@@ -60,7 +60,7 @@ server::server(int port): file(-1)
 	return;
 er_listen:
 er_bind:
-	close(fd);
+	::close(fd);
 	fd = -1;
 er_socket:
         std::cout << "Unable to open socket: " << strerror(errno) << std::endl;

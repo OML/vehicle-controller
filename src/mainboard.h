@@ -23,13 +23,15 @@
 
 #include "file.h"
 
+#define MAINBOARD \
+        (const_cast<mainboard*>(mainboard::instance))
+
 class mainboard: public file
 {
         public:
                 mainboard(const char* sfile);
 
-                int                     fd;
-
+                static mainboard*       instance;
         private:
                 void                    data_available();
 
