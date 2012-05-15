@@ -26,15 +26,15 @@ file::file(int fd): fd(fd)
         EVL->register_file(std::shared_ptr<file>(this));
 }
 
-size_t file::read(std::shared_ptr<char> buffer, size_t size)
+size_t file::read(char* buffer, size_t size)
 {
-        return ::read(fd, &*buffer, size);
+        return ::read(fd, buffer, size);
 }
 
 
-size_t file::write(std::shared_ptr<const char> buffer, size_t size)
+size_t file::write(const char* buffer, size_t size)
 {
-        return ::write(fd, &*buffer, size);
+        return ::write(fd, buffer, size);
 }
 
 void file::data_available()

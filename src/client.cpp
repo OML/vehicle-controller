@@ -42,9 +42,9 @@ void client::data_available()
 
 size_t client::send(const std::shared_ptr<tab2car_packet> pack)
 {
-        char* buffer;
+        char* buffer = NULL;
         size_t size = proto->fill(&buffer, pack);
-        write(std::shared_ptr<const char>(buffer), size);
+        write(buffer, size);
         return 0;
 }
 

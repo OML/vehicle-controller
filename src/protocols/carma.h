@@ -27,10 +27,10 @@ class carma: public protocol
                 carma();
                 ~carma();
 
-                int             init();
-                int             disconnect();
-                size_t          fill(char** buffer, std::shared_ptr<const tab2car_packet> pack);
-                size_t          interpret(std::shared_ptr<char> buffer);
+                int                     init();
+                int                     disconnect();
+                size_t                  fill(char** buffer, std::shared_ptr<const tab2car_packet> pack);
+                size_t                  interpret(std::shared_ptr<char> buffer);
 
 };
 

@@ -40,7 +40,9 @@ int carma::disconnect()
 
 size_t carma::fill(char** buffer, std::shared_ptr<const tab2car_packet> pack)
 {
-        return 0;
+        *buffer = new char[256];
+        *buffer[0] = pack->cmd;
+        return 256;
 }
 
 size_t carma::interpret(std::shared_ptr<char> buffer)

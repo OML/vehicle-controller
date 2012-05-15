@@ -35,8 +35,8 @@ class file
 
                 unsigned int    flags;
 
-                virtual size_t read(std::shared_ptr<char> buffer, size_t size);
-                virtual size_t write(std::shared_ptr<const char> buffer, size_t size);
+                virtual size_t read(char* buffer, size_t size);
+                virtual size_t write(const char* buffer, size_t size);
 
                 virtual void data_available();
         friend class event_loop;
