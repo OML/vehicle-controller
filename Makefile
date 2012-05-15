@@ -1,5 +1,5 @@
 CPP=g++
-CPPFLAGS=-Wall -c -std=c++0x
+CPPFLAGS=-Wall -c -std=c++0x -ggdb3
 LD=g++
 LDFLAGS=
 
@@ -15,7 +15,7 @@ else	# Linux
 	MKDIR=mkdir
 	MKDIR_P=$(MKDIR) -p
 	RMDIR=rmdir
-	RM=rm -f
+	RM=rm -rf
 	CP=cp -r
 	MV=mv
 	TOUCH=touch
@@ -27,7 +27,7 @@ BINDIR=bin
 OBJDIR=obj
 SRCDIR=src
 
-INCLUDES=-I$(INCDIR) -Isrc/protocols
+INCLUDES=-I$(INCDIR) -Isrc/protocols -Isrc/
 OUTPUT=$(BINDIR)/server
 SOURCES=server.cpp \
 	client.cpp \

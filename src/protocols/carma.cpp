@@ -18,9 +18,15 @@
 
 #include "carma.h"
 
-#include "prot_tab2car.h"
+#include <iostream>
+#include <vector>
+#include <dirent.h>
+#include <cstring>
 
-carma::carma(): protocol()
+
+#include "client.h"
+
+carma::carma(client* c): protocol(c)
 {
 
 }
@@ -37,17 +43,77 @@ int carma::init()
 
 int carma::disconnect()
 {
+}
+
+int carma::read_list_names(size_t bytes)
+{
+        std::string path = "/home/leon";
+        std::vector<std::string> files;
+        char* buffer;
+        DIR* dp;
+        struct dirent* dirp;
+        size_t pos, psize;
+
+        if((dp = opendir(path.c_str())) == NULL) {
+                std::cout << "Unable to open sound directory" << std::endl;
+                goto err;
+        }
+
+        while((dirp = readdir(dp)) != NULL) {
+                files.push_back(std::string(dirp->d_name));
+        }
+
+        closedir(dp);
+
+        psize = 2; // Opcode, number of files
+        for(auto f: files)
+                psize += f.length() + 1;
+
+        buffer = new char[psize];
+
+        pos = 0;
+        buffer[pos++] = COP_LIST_FILES;
+        buffer[pos++] = files.size();
+        for(auto f: files) {
+                buffer[pos++] = f.length();
+                memcpy(&buffer[pos], f.c_str(), f.length());
+                pos += f.length();
+        }
+
+        if(cl->write(buffer, 0) < 0) {
+                std::cout << "Protocol error - Write fail" << std::endl;
+                goto err;
+        }
+
+        return 0;
+err:
         return -1;
 }
 
-size_t carma::fill(char** buffer, std::shared_ptr<const tab2car_packet> pack)
+int carma::start_reading(size_t bytes)
 {
-        *buffer = new char[256];
-        *buffer[0] = pack->cmd;
-        return 256;
-}
+        std::cout << "Carma start reading" << std::endl;
+        size_t cur = 0;
+        while(cur < bytes) {
+                uint8_t opcode;
+                if(cl->read((char*)&opcode, 1) == -1) {
+                        std::cout << "Protocol error" << std::endl;
+                        return -1;
+                }
 
-size_t carma::interpret(std::shared_ptr<char> buffer)
-{
+                switch(opcode) {
+                        case COP_SYNC:
+                                if(read_sync(bytes-1) < 0)
+                                        return -1;
+                                break;
+                        case COP_LIST_FILES:
+                                if(read_list_names(bytes-1) < 0)
+                                        return -1;
+                                break;
+                        default:
+                                std::cout << "Protocol error - Invalid opcode (" << opcode << ")" << std::endl;
+                                return -1;
+                }
+        }
         return 0;
 }

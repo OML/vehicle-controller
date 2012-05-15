@@ -27,7 +27,7 @@ client::client(int fd, int prot): file(fd)
 {
         switch(prot) {
                 case PROT_CARMA:
-                        proto = std::unique_ptr<carma>(new carma());
+                        proto = std::unique_ptr<carma>(new carma(this));
                         break;
                 default:
                         std::cout << "Unsupported protocol (" << prot << ")" << std::endl;
@@ -37,18 +37,9 @@ client::client(int fd, int prot): file(fd)
 
 void client::data_available()
 {
+        if(bytes_available() == 0)
+                close();
         // Read shit and die
+        proto->start_reading(bytes_available());
 }
 
-size_t client::send(const std::shared_ptr<tab2car_packet> pack)
-{
-        char* buffer = NULL;
-        size_t size = proto->fill(&buffer, pack);
-        write(buffer, size);
-        return 0;
-}
-
-size_t client::bytes_available()
-{
-        return 0;
-}

@@ -18,7 +18,7 @@
 
 #include "protocol.h"
 
-protocol::protocol()
+protocol::protocol(client* c): cl(c)
 {
 
 }

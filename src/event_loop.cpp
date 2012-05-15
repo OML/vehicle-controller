@@ -32,18 +32,25 @@ event_loop::event_loop()
         instance = this;
 }
 
-void event_loop::register_file(std::shared_ptr<file> f)
+void event_loop::register_file(file* f)
 {
-        if(f == NULL || !f->fd) {
-                std::cout << "Invalid client" << std::cout;
+        if(f == NULL) {
+                std::cout << "Invalid file" << std::cout;
                 return;
         }
 
-        files[f->fd] = f;
+        files.push_back(f);
+}
+
+int event_loop::flush()
+{
+        std::cout << "Flush not ipmlemented" << std::endl;
+        return 0;
 }
 
 int event_loop::run()
 {
+        std::cout << "Start event loop" << std::endl;
         timeval timeout;
         int maxfd;
         fd_set read_fds;
@@ -53,24 +60,26 @@ int event_loop::run()
 	while(true) {
 	        FD_ZERO(&read_fds);
 	        for(auto file: files) {
-	                if(file.second->flags & FF_SELECT_READ) {
-	                        FD_SET(file.first, &read_fds);
-	                        maxfd = std::max(maxfd, file.first);
+	                if(file->fd > -1 && file->flags & FF_SELECT_READ) {
+	                        std::cout << "Select " << file->fd << std::endl;
+	                        FD_SET(file->fd, &read_fds);
+	                        maxfd = std::max(maxfd, file->fd);
 	                }
 	        }
 
 	        timeout.tv_sec = 10;
 	        timeout.tv_usec = 0;
 	        select(maxfd + 1, &read_fds, NULL, NULL, &timeout);
-
 	        if(timeout.tv_sec == 10 && timeout.tv_usec == 0) {
 	                // Timeout
 	                continue;
 	        }
 
 	        for(auto file: files) {
-	                if(FD_ISSET(file.first, &read_fds))
-	                        file.second->data_available();
+	                if(FD_ISSET(file->fd, &read_fds)) {
+	                        std::cout << "Activity " << file->fd << std::endl;
+	                        file->data_available();
+	                }
 	        }
 	}
 

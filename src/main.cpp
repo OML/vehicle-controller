@@ -32,7 +32,7 @@ std::string gpl =
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; run with `-c' for details.\n";
 
-int port = 2000;
+int port = 1337;
 const char* progname = NULL;
 
 
@@ -66,10 +66,10 @@ int main(int argc, char* argv[])
 
         parse_args(argc, argv);
 
-        auto evl = std::make_shared<event_loop>();
+        auto evl = new event_loop();
 
-	auto serv = std::make_shared<server>(port);
-	auto main = std::make_shared<mainboard>("/dev/ttyS0");
+	auto serv = new server(port);
+	auto main = new mainboard("/dev/ttyS0");
 
 	return evl->run();
 }

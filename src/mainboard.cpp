@@ -18,7 +18,7 @@
 
 #include "mainboard.h"
 
-mainboard::mainboard(const char* sfile): file(0)
+mainboard::mainboard(const char* sfile): file()
 {
         flags = 0;
 }

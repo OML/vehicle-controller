@@ -21,7 +21,7 @@
 
 #include "file.h"
 
-#include <map>
+#include <vector>
 #include <memory>
 
 #define EVL \
@@ -35,10 +35,12 @@ class event_loop
 		static event_loop*                      instance;
 
 		int 				        run();
-		void 				        register_file(std::shared_ptr<file> f);
+
+		int                                     flush();
+		void 				        register_file(file* f);
 
 	private:
-		std::map<int, std::shared_ptr<file>>    files;
+		std::vector<file*>    files;
 };
 
 #endif /* src/eventloop.h */

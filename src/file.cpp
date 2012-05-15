@@ -20,24 +20,48 @@
 
 #include "event_loop.h"
 
+#include <sys/ioctl.h>
+
 file::file(int fd): fd(fd)
 {
         flags = FF_SELECT_READ;
-        EVL->register_file(std::shared_ptr<file>(this));
+        EVL->register_file(this);
 }
 
-size_t file::read(char* buffer, size_t size)
+ssize_t file::read(char* buffer, size_t size)
 {
         return ::read(fd, buffer, size);
 }
 
 
-size_t file::write(const char* buffer, size_t size)
+ssize_t file::write(const char* buffer, size_t size)
 {
         return ::write(fd, buffer, size);
 }
 
+int file::close()
+{
+        ::close(fd);
+        set_fd(-1);
+        EVL->flush();
+        return 0;
+}
+
 void file::data_available()
 {
-        flags &= ~FF_SELECT_READ;
+        //flags &= ~FF_SELECT_READ;
+}
+
+size_t file::bytes_available()
+{
+        size_t size;
+        if(::ioctl(fd, FIONREAD, (char*)&size) < 0)
+                return 0;
+        return size;
+}
+
+void file::set_fd(int f)
+{
+        fd = f;
+        EVL->flush();
 }

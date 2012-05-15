@@ -22,6 +22,9 @@
 #include "protocol.h"
 
 #include <cstdint>
+#include <sys/types.h>
+
+class client;
 
 struct carma_motor
 {
@@ -34,7 +37,7 @@ struct carma_motor
 enum
 {
         COP_SYNC = 1,
-        COP_LIST_NAMES,
+        COP_LIST_FILES,
 };
 
 struct carma_t2c_packet
@@ -69,13 +72,16 @@ struct carma_c2t_packet
 class carma: public protocol
 {
         public:
-                carma();
+                carma(client* c);
                 ~carma();
 
                 int                     init();
                 int                     disconnect();
-                size_t                  fill(char** buffer, std::shared_ptr<const tab2car_packet> pack);
-                size_t                  interpret(std::shared_ptr<char> buffer);
+                int                     start_reading(size_t bytes);
+
+        private:
+                int                     read_list_names(size_t bytes);
+                int                     read_sync(size_t bytes);
 
 };
 

@@ -24,7 +24,6 @@
 
 #include <sys/types.h>
 
-#include "protocols/prot_tab2car.h"
 #include "protocols/protocol.h"
 
 #include "file.h"
@@ -40,15 +39,13 @@ class client: public file
 	public:
 		client(int fd, int protocol = PROT_CARMA);
 
-		size_t          	        send(const std::shared_ptr<tab2car_packet> p);
 	friend class event_loop;
 	protected:
-		size_t				bytes_available();
 
-		std::unique_ptr<protocol>       proto;
+		std::unique_ptr<protocol> proto;
 
 	private:
-		void                            data_available();
+		void data_available();
 };
 
 

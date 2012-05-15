@@ -19,20 +19,22 @@
 #ifndef _PROTOCOLS_PROTOCOL_H
 #define _PROTOCOLS_PROTOCOL_H
 
-#include "prot_tab2car.h"
+#include <sys/types.h>
 
-#include <memory>
+class client;
 
 class protocol
 {
 	public:
-                protocol();
+                protocol(client* c);
                 virtual ~protocol();
 
                 virtual int init() = 0;
                 virtual int disconnect() = 0;
-                virtual size_t fill(char** buffer, std::shared_ptr<const tab2car_packet> pack) = 0;
-                virtual size_t interpret(std::shared_ptr<char> buffer) = 0;
+                virtual int start_reading(size_t bytes) = 0;
+
+	protected:
+                client* cl;
 };
 
 #endif /* protocols/protocol.h */

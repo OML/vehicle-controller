@@ -25,23 +25,26 @@
 
 enum
 {
-        FF_SELECT_READ,
+        FF_SELECT_READ = 0x01,
 };
 
 class file
 {
         public:
-                file(int fd);
+                file(int fd = -1);
 
-                unsigned int    flags;
+                virtual ssize_t read(char*, size_t size);
+                virtual ssize_t write(const char* buffer, size_t size);
 
-                virtual size_t read(char* buffer, size_t size);
-                virtual size_t write(const char* buffer, size_t size);
+                virtual int close();
 
                 virtual void data_available();
+                virtual size_t bytes_available();
         friend class event_loop;
         protected:
+                void            set_fd(int fd);
                 int             fd;
+                unsigned int    flags;
 };
 
 #endif /* file.h */

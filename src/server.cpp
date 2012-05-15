@@ -36,7 +36,8 @@
 server::server(int port): file(-1)
 {
 	struct sockaddr_in addr;
-        errno = 0;
+        int fd;
+	errno = 0;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd < 0)
@@ -54,6 +55,7 @@ server::server(int port): file(-1)
 	        goto er_listen;
 
 	std::cout << "Server listening on port " << port << "." << std::endl;
+	set_fd(fd);
 
 	return;
 er_listen:
@@ -69,12 +71,13 @@ void server::accept()
 {
         sockaddr_in cli_addr;
         socklen_t cli_len;
-        std::shared_ptr<client> cli;
+        client* cli;
         int cli_fd;
 
         cli_fd = ::accept(fd, (sockaddr*)&cli_addr, &cli_len);
         if(cli_fd) {
-                cli = std::make_shared<client>(cli_fd);
+                std::cout << "Incoming connection" << std::endl;
+                cli = new client(cli_fd);
         }
 }
 
