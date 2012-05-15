@@ -18,6 +18,8 @@
 
 #include "carma.h"
 
+#include "prot_tab2car.h"
+
 carma::carma(): protocol()
 {
 
