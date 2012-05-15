@@ -18,30 +18,31 @@
 
 #include "client.h"
 
-#include "prot_tab2car.h"
+#include <memory.h>
+#include <iostream>
 
-client::client(int fd):
+#include "protocols/carma.h"
+
+client::client(int fd, int prot):
         fd(fd)
 {
-
+        switch(prot) {
+                case PROT_CARMA:
+                        proto = std::unique_ptr<carma>(new carma());
+                        break;
+                default:
+                        std::cout << "Unsupported protocol (" << prot << ")" << std::endl;
+        }
 }
 
 
 void client::data_available()
 {
-	char buffer[bytes_available()];
-	tab2car_packet* pack = (tab2car_packet*)&buffer;
-
-	read(&buffer, bytes_available());
-	
 }
 
-size_t client::write(std::shared_ptr<const char> data, size_t size)
+size_t client::send(const std::shared_ptr<tab2car_packet> pack)
 {
-}
-
-size_t client::read(std::shared_ptr<char> buffer, size_t max)
-{
+        return proto->send(pack);
 }
 
 size_t client::bytes_available()

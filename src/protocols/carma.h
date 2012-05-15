@@ -16,41 +16,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _PROTOCOLS_CARMA_H
+#define _PROTOCOLS_CARMA_H
 
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#include "protocol.h"
 
-#include <memory>
-
-#include <sys/types.h>
-
-#include "protocols/prot_tab2car.h"
-#include "protocols/protocol.h"
-
-enum
+class carma: public protocol
 {
-	PROT_STANDARD,
-	PROT_CARMA,
-};
+        public:
+                carma();
+                ~carma();
 
-class client
-{
-	public:
-		client(int fd, int protocol = PROT_CARMA);
-
-		size_t          	        send(const std::shared_ptr<tab2car_packet> p);
-	friend class event_loop;
-	protected:
-	        void            	        data_available();
-		size_t				bytes_available();
-		int				fd;
-
-		std::unique_ptr<protocol>       proto;
-
-	private:
+                int             init();
+                int             disconnect();
+                size_t          send(const std::shared_ptr<tab2car_packet> p);
+                size_t          receive(std::shared_ptr<tab2car_packet> p);
 
 };
 
-
-
-#endif /* src/client.h */
+#endif /* protocols/carma.h */

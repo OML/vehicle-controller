@@ -40,6 +40,19 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.1909803671.452045283" name="/" resourcePath="prot_tab2car_csharp">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1016854856" name="cdt.managedbuild.toolchain.gnu.base" superClass="cdt.managedbuild.toolchain.gnu.base" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1071684951" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.862264209"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.2024865446" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1512075928"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1359208368" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.34045327"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.525028230" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.1903433380"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1822851357" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1083081810"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1912782539" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.397064675"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="prot_tab2car_csharp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>

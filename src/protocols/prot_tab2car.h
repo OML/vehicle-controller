@@ -16,41 +16,46 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _PROTOCOLS_PROT_TAB2CAR_H
+#define _PROTOCOLS_PROT_TAB2CAR_H
 
-#ifndef _CLIENT_H
-#define _CLIENT_H
+#include <cstdint>
 
-#include <memory>
-
-#include <sys/types.h>
-
-#include "protocols/prot_tab2car.h"
-#include "protocols/protocol.h"
-
-enum
+enum tab2car_cmds
 {
-	PROT_STANDARD,
-	PROT_CARMA,
+	T2C_CMD_WRITE,
 };
 
-class client
+enum tab2car_steermode
 {
-	public:
-		client(int fd, int protocol = PROT_CARMA);
-
-		size_t          	        send(const std::shared_ptr<tab2car_packet> p);
-	friend class event_loop;
-	protected:
-	        void            	        data_available();
-		size_t				bytes_available();
-		int				fd;
-
-		std::unique_ptr<protocol>       proto;
-
-	private:
-
+	T2C_SM_XY,
+	T2C_SM_THROTTLE
 };
 
+struct tab2car_motor
+{
+	uint16_t	throttle;	// promille
+	uint16_t	voltage;	// millivolts
+	uint16_t	current;	// milliamperes
+	uint16_t	temperature;	// tenth degrees
+} __attribute__((packed));
 
+struct tab2car_packet
+{
+	uint8_t		cmd;		// T2C_CMD_WRITE
+	union {
+		struct {
+			struct {
+				int8_t		left;
+				int8_t		right;
+			}		steer;
+			struct {
+				
+			};
+			tab2car_motor	motors[4];
+		}	payload;
+	};
+	
+} __attribute__((packed));
 
-#endif /* src/client.h */
+#endif /* protocols/prot_tab2car.h */

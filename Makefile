@@ -27,12 +27,14 @@ BINDIR=bin
 OBJDIR=obj
 SRCDIR=src
 
-INCLUDES=-I$(INCDIR)
+INCLUDES=-I$(INCDIR) -Isrc/protocols
 OUTPUT=$(BINDIR)/server
 SOURCES=server.cpp \
 	client.cpp \
 	event_loop.cpp \
-	main.cpp
+	main.cpp \
+	protocols/carma.cpp \
+	protocols/protocol.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build

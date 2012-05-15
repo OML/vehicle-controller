@@ -16,47 +16,34 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PROT_TAB2CAR_H
-#define _PROT_TAB2CAR_H
+#include "carma.h"
 
-#include <cstdint>
-
-enum tab2car_cmds
+carma::carma(): protocol()
 {
-	T2C_CMD_WRITE,
-};
 
-enum tab2car_steermode
+}
+
+carma::~carma()
 {
-	T2C_SM_XY,
-	T2C_SM_THROTTLE
-};
 
-struct tab2car_motor
+}
+
+int carma::init()
 {
-	uint16_t	throttle;	// promille
-	uint16_t	voltage;	// millivolts
-	uint16_t	current;	// milliamperes
-	uint16_t	temperature;	// millidegrees
-};
+        return -1;
+}
 
-struct tab2car_packet
+int carma::disconnect()
 {
-	uint8_t		cmd;		// T2C_CMD_WRITE
-	union {
-		struct {
-			uint8_t			steermode;
-			struct {
-				int8_t		x;
-				int8_t		y;
-			}		steer;
-			struct {
-				
-			};
-			tab2car_motor	motors[4];
-		}	payload;
-	};
-	
-};
+        return -1;
+}
 
-#endif /* prot_tab2car.h */
+size_t carma::send(const std::shared_ptr<tab2car_packet> p)
+{
+        return 0;
+}
+
+size_t carma::receive(std::shared_ptr<tab2car_packet> p)
+{
+        return 0;
+}
