@@ -19,24 +19,26 @@
 #ifndef _SRC_EVENTLOOP_H
 #define _SRC_EVENTLOOP_H
 
-#include "server.h"
-#include "client.h"
+#include "file.h"
 
 #include <map>
 #include <memory>
 
+#define EVL \
+        (const_cast<event_loop*>(event_loop::instance))
+
 class event_loop
 {
 	public:
-		event_loop(std::shared_ptr<server> serv);
+		event_loop();
 	
+		static event_loop*                      instance;
+
 		int 				        run();
-		void 				        register_client(std::shared_ptr<client> client);
+		void 				        register_file(std::shared_ptr<file> f);
 
-
-		std::shared_ptr<server> 	        serv;
 	private:
-		std::map<int, std::shared_ptr<client>>  clients;
+		std::map<int, std::shared_ptr<file>>    files;
 };
 
 #endif /* src/eventloop.h */

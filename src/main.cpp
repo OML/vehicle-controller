@@ -18,6 +18,7 @@
 
 #include "server.h"
 #include "event_loop.h"
+#include "mainboard.h"
 
 #include <memory>
 #include <iostream>
@@ -65,8 +66,11 @@ int main(int argc, char* argv[])
 
         parse_args(argc, argv);
 
+        auto evl = std::make_shared<event_loop>();
+
 	auto serv = std::make_shared<server>(port);
-	auto evl = std::make_shared<event_loop>(serv);
+	auto main = std::make_shared<mainboard>("/dev/ttyS0");
+
 	return evl->run();
 }
 

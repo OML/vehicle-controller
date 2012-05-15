@@ -23,8 +23,7 @@
 
 #include "protocols/carma.h"
 
-client::client(int fd, int prot):
-        fd(fd)
+client::client(int fd, int prot): file(fd)
 {
         switch(prot) {
                 case PROT_CARMA:
@@ -38,13 +37,18 @@ client::client(int fd, int prot):
 
 void client::data_available()
 {
+        // Read shit and die
 }
 
 size_t client::send(const std::shared_ptr<tab2car_packet> pack)
 {
-        return proto->send(pack);
+        char* buffer;
+        size_t size = proto->fill(&buffer, pack);
+        write(std::shared_ptr<const char>(buffer), size);
+        return 0;
 }
 
 size_t client::bytes_available()
 {
+        return 0;
 }

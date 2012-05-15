@@ -21,23 +21,25 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
+#include <memory>
 
 #include <sys/select.h>
 
-event_loop::event_loop(std::shared_ptr<server> serv):
-	serv(serv)
+event_loop* event_loop::instance = NULL;
+
+event_loop::event_loop()
 {
-        serv->evl = std::shared_ptr<event_loop>(this);
+        instance = this;
 }
 
-void event_loop::register_client(std::shared_ptr<client> cl)
+void event_loop::register_file(std::shared_ptr<file> f)
 {
-        if(cl == NULL || !cl->fd) {
+        if(f == NULL || !f->fd) {
                 std::cout << "Invalid client" << std::cout;
                 return;
         }
 
-        clients[cl->fd] = cl;
+        files[f->fd] = f;
 }
 
 int event_loop::run()
@@ -46,18 +48,15 @@ int event_loop::run()
         int maxfd;
         fd_set read_fds;
 
-        if(serv == NULL)
-		return -1;
-
 	FD_ZERO(&read_fds);
 
 	while(true) {
 	        FD_ZERO(&read_fds);
-	        FD_SET(serv->sockfd, &read_fds);
-	        maxfd = serv->sockfd;
-	        for(auto client: clients) {
-	                FD_SET(client.first, &read_fds);
-	                maxfd = std::max(maxfd, client.first);
+	        for(auto file: files) {
+	                if(file.second->flags & FF_SELECT_READ) {
+	                        FD_SET(file.first, &read_fds);
+	                        maxfd = std::max(maxfd, file.first);
+	                }
 	        }
 
 	        timeout.tv_sec = 10;
@@ -69,12 +68,9 @@ int event_loop::run()
 	                continue;
 	        }
 
-	        if(FD_ISSET(serv->sockfd, &read_fds))
-	                serv->accept();
-
-	        for(auto client: clients) {
-	                if(FD_ISSET(client.first, &read_fds))
-	                        client.second->data_available();
+	        for(auto file: files) {
+	                if(FD_ISSET(file.first, &read_fds))
+	                        file.second->data_available();
 	        }
 	}
 

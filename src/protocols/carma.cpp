@@ -38,8 +38,7 @@ int carma::disconnect()
         return -1;
 }
 
-size_t carma::fill(std::shared_ptr<std::shared_ptr<char> > buffer, const std::shared_ptr<tab2car_packet> p)
-
+size_t carma::fill(char** buffer, std::shared_ptr<const tab2car_packet> pack)
 {
         return 0;
 }

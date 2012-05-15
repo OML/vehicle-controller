@@ -27,13 +27,15 @@
 #include "protocols/prot_tab2car.h"
 #include "protocols/protocol.h"
 
+#include "file.h"
+
 enum
 {
 	PROT_STANDARD,
 	PROT_CARMA,
 };
 
-class client
+class client: public file
 {
 	public:
 		client(int fd, int protocol = PROT_CARMA);
@@ -41,14 +43,12 @@ class client
 		size_t          	        send(const std::shared_ptr<tab2car_packet> p);
 	friend class event_loop;
 	protected:
-	        void            	        data_available();
 		size_t				bytes_available();
-		int				fd;
 
 		std::unique_ptr<protocol>       proto;
 
 	private:
-
+		void                            data_available();
 };
 
 

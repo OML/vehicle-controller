@@ -21,18 +21,17 @@
 
 #include <memory>
 
-class event_loop;
+#include "file.h"
 
-class server
+class server: public file
 {
 	public:
     		server(int port);
 
     		void                            accept();
-    	friend class event_loop;
-	protected:
-    	        std::shared_ptr<event_loop>     evl;
-    		int 		                sockfd;
+
+	private:
+                void                            data_available();
 };
 
 #endif /* src/server.h */

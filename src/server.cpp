@@ -19,6 +19,7 @@
 #include "server.h"
 
 #include "client.h"
+#include "file.h"
 
 #include <iostream>
 #include <memory>
@@ -32,14 +33,13 @@
 
 #include "event_loop.h"
 
-server::server(int port):
-        evl(NULL)
+server::server(int port): file(-1)
 {
 	struct sockaddr_in addr;
         errno = 0;
 
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if(sockfd < 0)
+	fd = socket(AF_INET, SOCK_STREAM, 0);
+	if(fd < 0)
 		goto er_socket;
 
 	bzero(&addr, sizeof(struct sockaddr_in));
@@ -47,10 +47,10 @@ server::server(int port):
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
-	if(bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+	if(bind(fd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 		goto er_bind;
 
-	if(listen(sockfd, 5) < 0)
+	if(listen(fd, 5) < 0)
 	        goto er_listen;
 
 	std::cout << "Server listening on port " << port << "." << std::endl;
@@ -58,8 +58,8 @@ server::server(int port):
 	return;
 er_listen:
 er_bind:
-	close(sockfd);
-	sockfd = -1;	
+	close(fd);
+	fd = -1;
 er_socket:
         std::cout << "Unable to open socket: " << strerror(errno) << std::endl;
 	return;				
@@ -72,9 +72,14 @@ void server::accept()
         std::shared_ptr<client> cli;
         int cli_fd;
 
-        cli_fd = ::accept(sockfd, (sockaddr*)&cli_addr, &cli_len);
+        cli_fd = ::accept(fd, (sockaddr*)&cli_addr, &cli_len);
         if(cli_fd) {
                 cli = std::make_shared<client>(cli_fd);
-                evl->register_client(cli);
         }
 }
+
+void server::data_available()
+{
+        accept();
+}
+

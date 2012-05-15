@@ -16,23 +16,28 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PROTOCOLS_PROTOCOL_H
-#define _PROTOCOLS_PROTOCOL_H
+#include "file.h"
 
-#include "prot_tab2car.h"
+#include "event_loop.h"
 
-#include <memory>
-
-class protocol
+file::file(int fd): fd(fd)
 {
-	public:
-                protocol();
-                virtual ~protocol();
+        flags = FF_SELECT_READ;
+        EVL->register_file(std::shared_ptr<file>(this));
+}
 
-                virtual int init() = 0;
-                virtual int disconnect() = 0;
-                virtual size_t fill(char** buffer, std::shared_ptr<const tab2car_packet> pack) = 0;
-                virtual size_t interpret(std::shared_ptr<char> buffer) = 0;
-};
+size_t file::read(std::shared_ptr<char> buffer, size_t size)
+{
+        return ::read(fd, &*buffer, size);
+}
 
-#endif /* protocols/protocol.h */
+
+size_t file::write(std::shared_ptr<const char> buffer, size_t size)
+{
+        return ::write(fd, &*buffer, size);
+}
+
+void file::data_available()
+{
+        flags &= ~FF_SELECT_READ;
+}

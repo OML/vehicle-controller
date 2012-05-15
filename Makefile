@@ -34,7 +34,9 @@ SOURCES=server.cpp \
 	event_loop.cpp \
 	main.cpp \
 	protocols/carma.cpp \
-	protocols/protocol.cpp
+	protocols/protocol.cpp \
+	file.cpp \
+	mainboard.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build
