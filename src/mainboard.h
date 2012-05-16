@@ -19,12 +19,14 @@
 #ifndef _MAINBOARD_H
 #define _MAINBOARD_H
 
-#include <memory>
-
 #include "file.h"
+
+#include <cstdint>
 
 #define MAINBOARD \
         (const_cast<mainboard*>(mainboard::instance))
+
+#define NMOTORS 4
 
 class mainboard: public file
 {
@@ -32,8 +34,13 @@ class mainboard: public file
                 mainboard(const char* sfile);
 
                 static mainboard*       instance;
+
+                int                     calibrate(uint16_t speeds[NMOTORS]);
+                int                     halt();
         private:
                 void                    data_available();
+
+                float                   motor_multiplier[NMOTORS];
 
 };
 

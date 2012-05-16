@@ -38,7 +38,7 @@ class client: public file
 {
 	public:
 		client(int fd, int protocol = PROT_CARMA);
-
+		~client();
 	friend class event_loop;
 	protected:
 

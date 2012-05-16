@@ -18,14 +18,35 @@
 
 #include "mainboard.h"
 
+#include <algorithm>
+
 mainboard* mainboard::instance = NULL;
 
 mainboard::mainboard(const char* sfile): file()
 {
         instance = this;
+
+        for(int i = 0; i < NMOTORS; i++)
+                motor_multiplier[i] = 1.0f;
 }
 
 void mainboard::data_available()
 {
 
+}
+
+int mainboard::calibrate(uint16_t speeds[NMOTORS])
+{
+        unsigned int min = -1;
+        for(int i = 0; i < NMOTORS; i++)
+                min = std::max(min, (unsigned int)speeds[i]);
+
+        for(int i = 0; i < NMOTORS; i++)
+                motor_multiplier[i] = static_cast<float>(min)/static_cast<float>(speeds[i]);
+
+        return 0;
+}
+
+int mainboard::halt()
+{
 }

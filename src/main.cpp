@@ -71,7 +71,11 @@ int main(int argc, char* argv[])
 	auto serv = new server(port);
 	auto main = new mainboard("/dev/ttyS0");
 
-	return evl->run();
+	int rv = evl->run();
+
+	delete serv;
+	delete main;
+        delete evl;
 }
 
 

@@ -34,6 +34,10 @@ client::client(int fd, int prot): file(fd)
         }
 }
 
+client::~client()
+{
+
+}
 
 void client::data_available()
 {

@@ -48,33 +48,32 @@ int carma::disconnect()
         return -1;
 }
 
+int carma::calibrate(uint16_t motors[4])
+{
+        char buffer[2];
+        int retval;
+        if((retval = MAINBOARD->calibrate(motors)) == 0) {
+                buffer[0] = COP_OK;
+                return cl->write(buffer, 1);
+        } else {
+                buffer[0] = COP_REJECT;
+                buffer[1] = retval;
+                return cl->write(buffer, 2);
+        }
+}
+
 int carma::read_sync(size_t bytes)
 {
         carma_t2c_sync_request pack;
+        char* response;
         size_t size = cl->read((char*)&pack, sizeof(carma_t2c_sync_request));
         if(size < sizeof(carma_t2c_sync_request)) {
                 std::cout << "Protocol error - Invalid packet size" << std::endl;
                 return -1;
         }
-        MAINBOARD->write((char*)&pack, sizeof(carma_t2c_sync_request));
 
-
-
-        carma_c2t_sync_response res;
-        res.opcode = COP_SYNC;
-        res.motors[0].throttle = 42;
-        res.motors[0].voltage = 0;
-        res.motors[0].current = 0;
-        res.motors[0].temperature = 1000;
-        res.motors[3] = res.motors[2]
-                = res.motors[1] = res.motors[0];
-        res.gyro[0] = 32;
-        res.gyro[1] = 23;
-        res.gyro[2] = 5;
-        res.accu_voltage = 48000;
-        res.accu_current = 60000;
-
-        cl->write((char*)&pack, sizeof(carma_c2t_sync_response));
+        if(pack.calibrate == 1)
+                return calibrate(pack.motors);
 
         return 0;
 }
@@ -116,10 +115,15 @@ int carma::read_list_names(size_t bytes)
 
         if(cl->write(buffer, 0) < 0) {
                 std::cout << "Protocol error - Write fail" << std::endl;
-                return -1;
+                goto err;
         }
 
+
+        delete [] buffer;
         return 0;
+err:
+        delete [] buffer;
+        return -1;
 }
 
 int carma::start_reading(size_t bytes)

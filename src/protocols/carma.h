@@ -28,8 +28,16 @@ class client;
 
 enum
 {
-        COP_SYNC = 1,
+        COP_REJECT = 0,
+        COP_OK,
+        COP_SYNC,
         COP_LIST_FILES,
+};
+
+enum
+{
+        C_REJECT_REASON_UNKONWN,
+        C_REJECT_REASON_INVALID
 };
 
 struct carma_motor
@@ -46,14 +54,15 @@ struct carma_t2c_sync_request
         int8_t left;
         int8_t right;
         uint8_t calibrate;
-        int8_t motors[4];
+        uint16_t motors[4];
         uint8_t sound;
 
 }__attribute__((packed));
 
 struct carma_c2t_sync_response
 {
-         uint8_t opcode;
+        uint8_t opcode;
+        uint32_t timestamp;
         carma_motor motors[4];
         int16_t gyro[3];
         int16_t accu_voltage;
@@ -70,6 +79,7 @@ class carma: public protocol
                 int                     disconnect();
                 int                     start_reading(size_t bytes);
 
+                int                     calibrate(uint16_t motors[4]);
         private:
                 int                     read_list_names(size_t bytes);
                 int                     read_sync(size_t bytes);
