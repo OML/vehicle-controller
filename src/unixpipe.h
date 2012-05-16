@@ -21,18 +21,47 @@
 
 #include "file.h"
 
-#include <utility>
+#include <memory>
 
-class unixpipe: public file
+class unixpipe;
+class unixpipe_endpoint: public file
 {
+        friend class unixpipe;
+
         public:
-                static std::pair<unixpipe*, unixpipe*> create_pair();
+                // Prevent copying
+                unixpipe_endpoint(const unixpipe_endpoint& other) = delete;
+                unixpipe_endpoint& operator=(const unixpipe_endpoint& other) = delete;
+
+                virtual ~unixpipe_endpoint();
+
         protected:
+                unixpipe_endpoint(unixpipe* pipe, int fd);
+        private:
+                unixpipe* pipe;
+
+                virtual void data_available();
+};
+
+class unixpipe
+{
+        friend class unixpipe_endpoint;
+
+        public:
                 unixpipe();
-                unixpipe(int fd);
 
+                // Prevent copying
+                unixpipe(const unixpipe& other) = delete;
+                unixpipe& operator=(const unixpipe& other) = delete;
 
-                unixpipe*           other;
+                // Beware, these pointers do not exists longer than the lifetime of
+                //      the complete pipe
+                inline unixpipe_endpoint* first() {return  endpoints.first.get();};
+                inline unixpipe_endpoint* second() {return endpoints.second.get();};
+        protected:
+                virtual void data_available(unixpipe_endpoint* ep);
+        private:
+                std::pair<std::unique_ptr<unixpipe_endpoint>, std::unique_ptr<unixpipe_endpoint> > endpoints;
 };
 
 #endif /* pipe.h */

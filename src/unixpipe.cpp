@@ -18,19 +18,36 @@
 
 #include "unixpipe.h"
 
-unixpipe::unixpipe(): file()
-{
-
-}
-
-unixpipe::unixpipe(int fd): file(fd)
+unixpipe_endpoint::unixpipe_endpoint(unixpipe* pipe, int fd):
+        file(fd), pipe(pipe)
 {
 }
 
-std::pair<unixpipe*, unixpipe*> unixpipe::create_pair()
+unixpipe_endpoint::~unixpipe_endpoint()
+{
+}
+
+void unixpipe_endpoint::data_available()
+{
+        pipe->data_available(this);
+}
+
+unixpipe::unixpipe()
 {
         int pipes[2];
         if(pipe(pipes) < 0)
-                return {nullptr, nullptr};
-        return {new unixpipe(pipes[0]), new unixpipe(pipes[1])};
+                endpoints = {nullptr, nullptr};
+        endpoints = {
+                        std::unique_ptr<unixpipe_endpoint>(
+                                        new unixpipe_endpoint(this, pipes[0])
+                        ),
+                        std::unique_ptr<unixpipe_endpoint>(
+                                        new unixpipe_endpoint(this, pipes[1])
+                        )
+        };
+}
+
+void unixpipe::data_available(unixpipe_endpoint* ep)
+{
+        ep->flags &= ~FF_SELECT_READ;
 }
