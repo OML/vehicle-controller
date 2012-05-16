@@ -36,7 +36,8 @@ SOURCES=server.cpp \
 	protocols/carma.cpp \
 	protocols/protocol.cpp \
 	file.cpp \
-	mainboard.cpp
+	mainboard.cpp \
+	unixpipe.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build
