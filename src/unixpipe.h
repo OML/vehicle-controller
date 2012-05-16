@@ -59,7 +59,7 @@ class unixpipe
                 inline unixpipe_endpoint* first() {return  endpoints.first.get();};
                 inline unixpipe_endpoint* second() {return endpoints.second.get();};
         protected:
-                virtual void data_available(unixpipe_endpoint* ep);
+                virtual void data_available(unixpipe_endpoint* ep) = 0;
         private:
                 std::pair<std::unique_ptr<unixpipe_endpoint>, std::unique_ptr<unixpipe_endpoint> > endpoints;
 };

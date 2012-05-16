@@ -47,7 +47,3 @@ unixpipe::unixpipe()
         };
 }
 
-void unixpipe::data_available(unixpipe_endpoint* ep)
-{
-        ep->flags &= ~FF_SELECT_READ;
-}
