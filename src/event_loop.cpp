@@ -18,6 +18,8 @@
 
 #include "event_loop.h"
 
+#include "mainboard.h"
+
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -27,9 +29,45 @@
 
 event_loop* event_loop::instance = NULL;
 
+void event_loop::evl_event_queue::data_available(unixpipe_endpoint* ep)
+{
+        event_loop::event ev;
+        while(ep->bytes_available()) {
+                if(ep->read(reinterpret_cast<char*>(&ev),
+                            static_cast<size_t>(sizeof(event_loop::event)))
+                        < 0) {
+                        std::cout << __PRETTY_FUNCTION__
+                                  << ": Unable to read events from the queue"
+                                  << std::endl;
+                        return;
+                }
+                process_event(ev);
+        }
+}
+
+void event_loop::evl_event_queue::process_event(event_loop::event& ev)
+{
+        switch(ev.type) {
+                default:
+                        return;
+        }
+}
+
+void event_loop::evl_event_queue::post_event(event_loop::event& ev)
+{
+        first()->write(reinterpret_cast<char*>(&ev),
+                     static_cast<size_t>(sizeof(event_loop::event)));
+}
+
 event_loop::event_loop()
 {
         instance = this;
+        /* This has to be initialized _after_ instance has been assigned.
+         * Otherwise the files of the endpoints cannot register their fd's for
+         * reading.
+         */
+        event_queue = std::unique_ptr<evl_event_queue>(
+                        new evl_event_queue());
 }
 
 void event_loop::register_file(file* f)
@@ -44,13 +82,14 @@ void event_loop::register_file(file* f)
 
 int event_loop::flush()
 {
-        std::cout << "Flush not implemented" << std::endl;
+        event ev;
+        ev.type = EV_FLUSH;
+        event_queue->post_event(ev);
         return 0;
 }
 
 int event_loop::run()
 {
-        std::cout << "Start event loop" << std::endl;
         timeval timeout;
         int maxfd;
         fd_set read_fds;
@@ -70,8 +109,8 @@ int event_loop::run()
 	        timeout.tv_sec = 10;
 	        timeout.tv_usec = 0;
 	        select(maxfd + 1, &read_fds, NULL, NULL, &timeout);
-	        if(timeout.tv_sec == 10 && timeout.tv_usec == 0) {
-	                // Timeout
+	        if(timeout.tv_sec == 1 && timeout.tv_usec == 0) {
+	                MAINBOARD->halt();
 	                continue;
 	        }
 

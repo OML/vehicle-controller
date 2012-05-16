@@ -21,11 +21,15 @@
 
 #include "file.h"
 
+#include "unixpipe.h"
+
 #include <vector>
 #include <memory>
 
 #define EVL \
         (const_cast<event_loop*>(event_loop::instance))
+
+
 
 class event_loop
 {
@@ -39,8 +43,28 @@ class event_loop
 		int                                     flush();
 		void 				        register_file(file* f);
 
+		enum {
+		        EV_FLUSH,
+		};
+		struct event
+		{
+		        int type;
+		};
+
 	private:
 		std::vector<file*>    files;
+
+                class evl_event_queue: public unixpipe
+                {
+                        public:
+                                void post_event(event& ev);
+
+                        private:
+                                void process_event(event& ev);
+                                void data_available(unixpipe_endpoint* ep);
+                };
+                std::unique_ptr<evl_event_queue> event_queue;
+
 };
 
 #endif /* src/eventloop.h */
