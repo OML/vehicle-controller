@@ -21,12 +21,24 @@
 
 #include <cstdint>
 
+typedef uint16_t voltage_t;
+typedef uint16_t current_t;
+typedef int16_t temperature_t;
+typedef int16_t throttle_t;
+
 struct motor_data
 {
-        int16_t         throttle;       // promille
-        uint16_t        voltage;        // millivolts
-        uint16_t        current;        // milliamperes
-        int16_t         temperature;    // tenth degrees
+        throttle_t      throttle;       // promille
+        voltage_t       voltage;        // millivolts
+        current_t       current;        // milliamperes
+        temperature_t   temperature;    // tenth degrees
+} __attribute__((packed));
+
+struct device_data
+{
+        voltage_t       voltage;        // millivolts
+        current_t       current;        // milliamperes
+        temperature_t   temperature;    // tenth degrees
 } __attribute__((packed));
 
 #endif /* src/protocols/general.h */
