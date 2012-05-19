@@ -20,8 +20,11 @@
 
 #include <iostream>
 #include <vector>
-#include <dirent.h>
 #include <cstring>
+
+
+#include <dirent.h>
+#include <endian.h>
 
 
 #include "client.h"
@@ -65,20 +68,23 @@ int carma::calibrate(uint16_t motors[4])
 int carma::read_sync(size_t bytes)
 {
         carma_t2c_sync_request pack;
-        char* response;
         size_t size = cl->read((char*)&pack, sizeof(carma_t2c_sync_request));
         if(size < sizeof(carma_t2c_sync_request)) {
                 std::cout << "Protocol error - Invalid packet size" << std::endl;
                 return -1;
         }
 
-        if(pack.calibrate == 1)
+        if(pack.calibrate == 1) {
+                pack.motors[0] = le16toh(pack.motors[0]);
+                pack.motors[1] = le16toh(pack.motors[1]);
+                pack.motors[2] = le16toh(pack.motors[2]);
+                pack.motors[3] = le16toh(pack.motors[3]);
                 return calibrate(pack.motors);
-
+        }
         return 0;
 }
 
-int carma::read_list_names(size_t bytes)
+int carma::respond_report(size_t bytes)
 {
         std::string path = "/home/leon/workspace/vehicle-controller/resources/sounds/";
         std::vector<std::string> files;
@@ -98,15 +104,19 @@ int carma::read_list_names(size_t bytes)
 
         closedir(dp);
 
-        psize = 2; // Opcode, number of files
+        psize = 5; // Opcode, padding, version, number of files
         for(auto f: files)
                 psize += f.length() + 1;
 
         buffer = new char[psize];
 
         pos = 0;
-        buffer[pos++] = COP_LIST_FILES;
+        buffer[pos++] = COP_REPORT;     // Opcode
+        buffer[pos++] = 0;              // Padding
+        buffer[pos++] = CARMA_VERSION;  // Protocol version
+        buffer[pos++] = CARMA_REVISION; // Protocol revision
         buffer[pos++] = files.size();
+
         for(auto f: files) {
                 buffer[pos++] = f.length();
                 memcpy(&buffer[pos], f.c_str(), f.length());
@@ -141,8 +151,8 @@ int carma::start_reading(size_t bytes)
                         if(read_sync(bytes) < 0)
                                 return -1;
                         break;
-                case COP_LIST_FILES:
-                        if(read_list_names(bytes) < 0)
+                case COP_REPORT:
+                        if(respond_report(bytes) < 0)
                                 return -1;
                         break;
                 default:

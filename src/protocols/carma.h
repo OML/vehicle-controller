@@ -26,6 +26,10 @@
 #include <cstdint>
 #include <sys/types.h>
 
+// Supported version
+#define CARMA_VERSION   0
+#define CARMA_REVISION  2
+
 class client;
 
 enum
@@ -33,7 +37,7 @@ enum
         COP_REJECT = 0,
         COP_OK,
         COP_SYNC,
-        COP_LIST_FILES,
+        COP_REPORT,
 };
 
 enum
@@ -75,7 +79,7 @@ class carma: public protocol
 
                 int                     calibrate(uint16_t motors[4]);
         private:
-                int                     read_list_names(size_t bytes);
+                int                     respond_report(size_t bytes);
                 int                     read_sync(size_t bytes);
 
 };
