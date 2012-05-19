@@ -21,6 +21,8 @@
 
 #include "protocol.h"
 
+#include "general.h"
+
 #include <cstdint>
 #include <sys/types.h>
 
@@ -40,14 +42,6 @@ enum
         C_REJECT_REASON_INVALID
 };
 
-struct carma_motor
-{
-        int16_t         throttle;       // promille
-        uint16_t        voltage;        // millivolts
-        uint16_t        current;        // milliamperes
-        int16_t         temperature;    // tenth degrees
-} __attribute__((packed));
-
 struct carma_t2c_sync_request
 {
         uint8_t speed;
@@ -63,7 +57,7 @@ struct carma_c2t_sync_response
 {
         uint8_t opcode;
         uint32_t timestamp;
-        carma_motor motors[4];
+        motor_data motors[4];
         int16_t gyro[3];
         int16_t accu_voltage;
         int16_t accu_current;
