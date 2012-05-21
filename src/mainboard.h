@@ -21,12 +21,24 @@
 
 #include "file.h"
 
-#include <cstdint>
+#include "protocols/general.h"
 
 #define MAINBOARD \
         (const_cast<mainboard*>(mainboard::instance))
 
 #define NMOTORS 4
+
+
+// Possible values for mbtophy_packet.flags
+#define MBP_ERROR               (1 << 0)
+#define MBP_RESET               (1 << 1)
+#define MBP_UNDERVOLTAGE        (1 << 2)
+
+struct mbtophy_packet
+{
+        uint32_t        flags;
+        motor_data      motors[NMOTORS];
+} __attribute__((packed));
 
 class mainboard: public file
 {
