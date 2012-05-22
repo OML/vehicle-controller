@@ -110,7 +110,13 @@ int carma::read_report()
                 std::cout << "System error - Unable to read buffer" << std::endl;
                 return -1;
         }
-        MAINBOARD->set_tresholds(req.tresholds);
+        event_tresholds tresh;
+        tresh.throttle_treshold = le16toh(req.tresholds.throttle_treshold);
+        tresh.voltage_treshold = le16toh(req.tresholds.voltage_treshold);
+        tresh.current_treshold = le16toh(req.tresholds.current_treshold);
+        tresh.temperature_treshold = le16toh(req.tresholds.temperature_treshold);
+        tresh.gyro_treshold = le16toh(req.tresholds.gyro_treshold);
+        MAINBOARD->set_tresholds(tresh);
 
 
 
