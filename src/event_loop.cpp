@@ -110,7 +110,7 @@ int event_loop::run()
 	        FD_ZERO(&read_fds);
 	        maxfd = 0;
 	        for(auto file: files) {
-	                if(file->fd > -1 && file->flags & FF_SELECT_READ) {
+	                if(file->fd > -1 && file->event_mask & UFILE_EVENT_READ) {
 	                        FD_SET(file->fd, &read_fds);
 	                        maxfd = std::max(maxfd, file->fd);
 	                }

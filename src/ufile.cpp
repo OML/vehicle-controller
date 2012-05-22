@@ -25,13 +25,20 @@
 
 ufile::ufile(int fd): fd(fd)
 {
-        flags = FF_SELECT_READ;
+        set_event_mask(0);
         EVL->register_file(this);
 }
 
 ufile::~ufile()
 {
         EVL->unregister_file(this);
+}
+
+void ufile::set_event_mask(ufile_event_mask_t mask)
+{
+        event_mask = mask;
+        if(fd)
+                EVL->flush();
 }
 
 ssize_t ufile::read(char* buffer, size_t size)

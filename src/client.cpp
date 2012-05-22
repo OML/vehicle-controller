@@ -27,6 +27,8 @@
 
 client::client(int fd, int prot): ufile(fd)
 {
+        set_event_mask(UFILE_EVENT_READ);
+
         switch(prot) {
                 case PROT_CARMA:
                         proto = std::unique_ptr<carma>(new carma(this));

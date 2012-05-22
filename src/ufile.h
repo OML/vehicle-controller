@@ -22,9 +22,11 @@
 #include <sys/types.h>
 
 
+typedef unsigned int ufile_event_mask_t;
 enum
 {
-        FF_SELECT_READ = 0x01,
+        UFILE_EVENT_READ = 0x01,
+        UFILE_EVENT_WRITE = 0x02,
 };
 
 class ufile
@@ -53,6 +55,9 @@ class ufile
                 void            set_fd(int fd);
                 int             fd;
                 unsigned int    flags;
+
+                ufile_event_mask_t event_mask;
+                void set_event_mask(ufile_event_mask_t mask);
 };
 
 #endif /* src/ufile.h */

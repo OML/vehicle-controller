@@ -24,7 +24,6 @@
 
 file::file(): ufile()
 {
-        ufile::flags &= ~FF_SELECT_READ;
 }
 
 file::file(const std::string& path): ufile()

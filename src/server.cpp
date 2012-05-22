@@ -33,8 +33,10 @@
 
 #include "event_loop.h"
 
-server::server(int port): ufile(-1)
+server::server(int port): ufile()
 {
+        set_event_mask(UFILE_EVENT_READ);
+
 	struct sockaddr_in addr;
         int fd;
 	errno = 0;

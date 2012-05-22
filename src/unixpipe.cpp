@@ -21,6 +21,7 @@
 unixpipe_endpoint::unixpipe_endpoint(unixpipe* pipe, int fd):
         ufile(fd), pipe(pipe)
 {
+        set_event_mask(UFILE_EVENT_READ);
 }
 
 unixpipe_endpoint::~unixpipe_endpoint()
