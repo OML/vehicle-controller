@@ -46,7 +46,7 @@ void client::data_available()
         if(bytes_available() == 0)
                 close();
 
-        proto->start_reading(bytes_available());
+        proto->start_reading();
 }
 
 ssize_t client::peek(char* buffer, size_t size)

@@ -25,6 +25,7 @@ typedef uint16_t voltage_t;
 typedef uint16_t current_t;
 typedef int16_t temperature_t;
 typedef int16_t throttle_t;
+typedef int16_t gyro_t;
 
 struct motor_data
 {
@@ -40,5 +41,16 @@ struct device_data
         current_t       current;        // milliamperes
         temperature_t   temperature;    // tenth degrees
 } __attribute__((packed));
+
+
+struct event_tresholds
+{
+        throttle_t throttle_treshold;
+        voltage_t voltage_treshold;
+        current_t current_treshold;
+        temperature_t temperature_treshold;
+        gyro_t gyro_treshold;
+} __attribute__((packed));
+
 
 #endif /* src/protocols/general.h */

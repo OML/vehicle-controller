@@ -31,7 +31,7 @@ class protocol
 
                 virtual int init() = 0;
                 virtual int disconnect() = 0;
-                virtual int start_reading(size_t bytes) = 0;
+                virtual int start_reading() = 0;
 
 	protected:
                 client* cl;

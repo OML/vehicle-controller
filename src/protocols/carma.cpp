@@ -53,23 +53,37 @@ int carma::disconnect()
 
 int carma::calibrate(uint16_t motors[4])
 {
-        char buffer[2];
+        carma_response resp;
+
         int retval;
         if((retval = MAINBOARD->calibrate(motors)) == 0) {
-                buffer[0] = COP_OK;
-                return cl->write(buffer, 1);
+                resp.opcode.op = COP_OK;
+                resp.reason = 0;
+                return cl->write(reinterpret_cast<char*>(&resp), sizeof(resp));
         } else {
-                buffer[0] = COP_REJECT;
-                buffer[1] = retval;
-                return cl->write(buffer, 2);
+                resp.opcode.op = COP_REJECT;
+                resp.reason = retval;
+                return cl->write(reinterpret_cast<char*>(&resp), sizeof(resp));
         }
 }
 
-int carma::read_sync(size_t bytes)
+int carma::read_keepalive()
 {
-        carma_t2c_sync_request pack;
-        size_t size = cl->read((char*)&pack, sizeof(carma_t2c_sync_request));
-        if(size < sizeof(carma_t2c_sync_request)) {
+        carma_keepalive_request req;
+        size_t size = cl->read(reinterpret_cast<char*>(&req), sizeof(req));
+        if(size != sizeof(carma_keepalive_request)) {
+                std::cout << "Protocol error - Invalid packet size" << std::endl;
+                return -1;
+        }
+        cl->write(reinterpret_cast<char*>(&req), sizeof(req));
+        return 0;
+}
+
+int carma::read_sync()
+{
+        carma_sync_request pack;
+        size_t size = cl->read((char*)&pack, sizeof(carma_sync_request));
+        if(size < sizeof(carma_sync_request)) {
                 std::cout << "Protocol error - Invalid packet size" << std::endl;
                 return -1;
         }
@@ -84,8 +98,23 @@ int carma::read_sync(size_t bytes)
         return 0;
 }
 
-int carma::respond_report(size_t bytes)
+int carma::read_report()
 {
+        carma_report_request req;
+        if(cl->bytes_available() < sizeof(carma_report_request)) {
+                std::cout << "Protocol error - Invalid packet size" << std::endl;
+                return -1;
+        }
+        size_t size = cl->read((char*)&req, sizeof(carma_report_request));
+        if(size != sizeof(carma_report_request)) {
+                std::cout << "System error - Unable to read buffer" << std::endl;
+                return -1;
+        }
+        MAINBOARD->set_tresholds(req.tresholds);
+
+
+
+
         std::string path = "/home/leon/workspace/vehicle-controller/resources/sounds/";
         std::vector<std::string> files;
         char* buffer;
@@ -104,18 +133,20 @@ int carma::respond_report(size_t bytes)
 
         closedir(dp);
 
-        psize = 5; // Opcode, padding, version, number of files
+        psize = sizeof(carma_report_response);
         for(auto f: files)
                 psize += f.length() + 1;
-
         buffer = new char[psize];
 
-        pos = 0;
-        buffer[pos++] = COP_REPORT;     // Opcode
-        buffer[pos++] = 0;              // Padding
-        buffer[pos++] = CARMA_VERSION;  // Protocol version
-        buffer[pos++] = CARMA_REVISION; // Protocol revision
-        buffer[pos++] = files.size();
+        struct carma_report_response* hdr;
+        hdr = reinterpret_cast<carma_report_response*>(buffer);
+
+        hdr->opcode.op = COP_REPORT;
+        hdr->prot_ver = CARMA_VERSION;
+        hdr->prot_rev = CARMA_REVISION;
+        hdr->files_len = files.size();
+
+        pos = sizeof(carma_report_response);
 
         for(auto f: files) {
                 buffer[pos++] = f.length();
@@ -123,7 +154,7 @@ int carma::respond_report(size_t bytes)
                 pos += f.length();
         }
 
-        if(cl->write(buffer, 0) < 0) {
+        if(cl->write(buffer, psize) < 0) {
                 std::cout << "Protocol error - Write fail" << std::endl;
                 goto err;
         }
@@ -136,27 +167,29 @@ err:
         return -1;
 }
 
-int carma::start_reading(size_t bytes)
+int carma::start_reading()
 {
-        std::cout << "Carma start reading" << std::endl;
-
-        uint8_t opcode;
-        if(cl->read((char*)&opcode, 1) == -1) {
-                std::cout << "Protocol error" << std::endl;
+        carma_opcode opcode;
+        if(cl->peek((char*)&opcode, sizeof(carma_opcode)) == -1) {
+                std::cout << "System error - Unable to peek" << std::endl;
                 return -1;
         }
 
-        switch(opcode) {
+        switch(opcode.op) {
                 case COP_SYNC:
-                        if(read_sync(bytes) < 0)
+                        if(read_sync() < 0)
                                 return -1;
                         break;
                 case COP_REPORT:
-                        if(respond_report(bytes) < 0)
+                        if(read_report() < 0)
+                                return -1;
+                        break;
+                case COP_KEEPALIVE:
+                        if(read_keepalive() < 0)
                                 return -1;
                         break;
                 default:
-                        std::cout << "Protocol error - Invalid opcode (" << opcode << ")" << std::endl;
+                        std::cout << "Protocol error - Invalid opcode (" << opcode.op << ")" << std::endl;
                         return -1;
         }
 

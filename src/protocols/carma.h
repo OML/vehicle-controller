@@ -28,7 +28,9 @@
 
 // Supported version
 #define CARMA_VERSION   0
-#define CARMA_REVISION  2
+#define CARMA_REVISION  3
+
+typedef int16_t gyro_t;
 
 class client;
 
@@ -38,6 +40,7 @@ enum
         COP_OK,
         COP_SYNC,
         COP_REPORT,
+        COP_KEEPALIVE,
 };
 
 enum
@@ -46,8 +49,15 @@ enum
         C_REJECT_REASON_INVALID
 };
 
-struct carma_t2c_sync_request
+struct carma_opcode
 {
+        uint8_t op;
+} __attribute__((packed));
+
+
+struct carma_sync_request
+{
+        carma_opcode opcode;
         uint8_t speed;
         int8_t left;
         int8_t right;
@@ -57,15 +67,46 @@ struct carma_t2c_sync_request
 
 }__attribute__((packed));
 
-struct carma_c2t_sync_response
+struct carma_sync_response
 {
-        uint8_t opcode;
+        carma_opcode opcode;
         uint32_t timestamp;
         motor_data motors[4];
-        int16_t gyro[3];
-        int16_t accu_voltage;
-        int16_t accu_current;
-};
+        gyro_t gyro[3];
+        voltage_t accu_voltage;
+        current_t accu_current;
+} __attribute__((packed));
+
+struct carma_report_request
+{
+        carma_opcode opcode;
+        uint8_t padding;
+        event_tresholds tresholds;
+} __attribute__((packed));
+
+struct carma_keepalive_request
+{
+        carma_opcode opcode;
+        uint8_t padding;
+} __attribute__((packed));
+
+
+struct carma_report_response
+{
+        carma_opcode opcode;
+        uint8_t padding;
+
+        uint8_t prot_ver;
+        uint8_t prot_rev;
+
+        uint8_t files_len;
+} __attribute__((packed));
+
+struct carma_response
+{
+        carma_opcode opcode;
+        uint8_t reason;
+} __attribute__((packed));
 
 class carma: public protocol
 {
@@ -75,12 +116,13 @@ class carma: public protocol
 
                 int                     init();
                 int                     disconnect();
-                int                     start_reading(size_t bytes);
+                int                     start_reading();
 
                 int                     calibrate(uint16_t motors[4]);
         private:
-                int                     respond_report(size_t bytes);
-                int                     read_sync(size_t bytes);
+                int                     read_report();
+                int                     read_sync();
+                int                     read_keepalive();
 
 };
 

@@ -48,6 +48,7 @@ class mainboard: public file
                 static mainboard*       instance;
 
                 int                     calibrate(uint16_t speeds[NMOTORS]);
+                int                     set_tresholds(const event_tresholds& tresh);
                 int                     halt();
         private:
                 void                    data_available();

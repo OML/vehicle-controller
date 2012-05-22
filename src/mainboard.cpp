@@ -47,6 +47,13 @@ int mainboard::calibrate(uint16_t speeds[NMOTORS])
         return 0;
 }
 
+int mainboard::set_tresholds(const event_tresholds& tresh)
+{
+#warning "mainboard::set_tresholds not implemented yet."
+        return -1;
+}
+
 int mainboard::halt()
 {
+        return -1;
 }
