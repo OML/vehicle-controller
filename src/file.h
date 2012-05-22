@@ -40,6 +40,7 @@ class file
 {
         public:
                 file(int fd = -1);
+                virtual ~file();
 
                 virtual ssize_t read(char*, size_t size);
                 virtual ssize_t write(const char* buffer, size_t size);

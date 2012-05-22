@@ -30,6 +30,11 @@ file::file(int fd): fd(fd)
         EVL->register_file(this);
 }
 
+file::~file()
+{
+        EVL->unregister_file(this);
+}
+
 ssize_t file::read(char* buffer, size_t size)
 {
         return ::read(fd, buffer, size);
