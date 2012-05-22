@@ -39,6 +39,8 @@ class client: public file
 	public:
 		client(int fd, int protocol = PROT_CARMA);
 		~client();
+
+		ssize_t peek(char* buffer, size_t size);
 	friend class event_loop;
 	protected:
 

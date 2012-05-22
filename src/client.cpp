@@ -23,6 +23,8 @@
 
 #include "protocols/carma.h"
 
+#include <sys/socket.h>
+
 client::client(int fd, int prot): file(fd)
 {
         switch(prot) {
@@ -47,3 +49,7 @@ void client::data_available()
         proto->start_reading(bytes_available());
 }
 
+ssize_t client::peek(char* buffer, size_t size)
+{
+       return ::recv(fd, buffer, size, MSG_PEEK);
+}

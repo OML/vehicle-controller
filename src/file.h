@@ -36,6 +36,11 @@ class file
                 virtual ssize_t read(char*, size_t size);
                 virtual ssize_t write(const char* buffer, size_t size);
 
+                /*
+                 * Returns -1 if peek is not supported on this file
+                 */
+                virtual ssize_t peek(char* buffer, size_t size);
+
                 virtual int close();
 
                 virtual void data_available();

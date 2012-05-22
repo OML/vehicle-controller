@@ -33,6 +33,10 @@ ssize_t file::read(char* buffer, size_t size)
         return ::read(fd, buffer, size);
 }
 
+ssize_t file::peek(char* buffer, size_t size)
+{
+        return -1; // Not supported
+}
 
 ssize_t file::write(const char* buffer, size_t size)
 {
