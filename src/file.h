@@ -21,11 +21,19 @@
 
 #include <sys/types.h>
 
-#include <memory>
+#include <string>
 
 enum
 {
         FF_SELECT_READ = 0x01,
+};
+
+enum
+{
+        F_CREATE = 0x01,
+        F_READONLY = 0x02,
+        F_WRITEONLY = 0x04,
+        F_READWRITE = 0x08,
 };
 
 class file
@@ -45,6 +53,10 @@ class file
 
                 virtual void data_available();
                 virtual size_t bytes_available();
+
+
+
+                int open(const std::string& path, unsigned int flags = F_CREATE | F_READWRITE);
         friend class event_loop;
         protected:
                 void            set_fd(int fd);
