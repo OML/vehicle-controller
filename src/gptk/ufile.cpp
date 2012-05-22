@@ -83,3 +83,11 @@ void ufile::set_fd(int f)
         fd = f;
         EVL->flush();
 }
+
+void ufile::defer_delete()
+{
+        event_loop::event ev;
+        ev.type = event_loop::EV_DEFER_DELETE;
+        ev.sender = this;
+        EVL->post_event(ev);
+}

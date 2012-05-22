@@ -48,6 +48,9 @@ void event_loop::evl_event_queue::data_available(unixpipe_endpoint* ep)
 void event_loop::evl_event_queue::process_event(event_loop::event& ev)
 {
         switch(ev.type) {
+                case EV_DEFER_DELETE:
+                        delete ev.sender;
+                        return;
                 default:
                         return;
         }

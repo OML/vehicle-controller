@@ -48,7 +48,7 @@ class ufile
                 virtual void data_available();
                 virtual size_t bytes_available();
 
-
+                void defer_delete();
 
         friend class event_loop;
         protected:

@@ -47,12 +47,19 @@ class event_loop
 		enum {
 		        EV_FLUSH,
 		        EV_STOP,
+		        EV_DEFER_DELETE,
 		};
 		struct event
 		{
 		        int type;
+		        ufile* sender;
 		};
 
+		void post_event(event& ev)
+		{
+		        if(event_queue)
+		                event_queue->post_event(ev);
+		}
 	private:
 		std::list<ufile*>    files;
 
