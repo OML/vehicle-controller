@@ -66,6 +66,7 @@ event_loop::event_loop()
          * Otherwise the files of the endpoints cannot register their fd's for
          * reading.
          */
+        event_queue = NULL;
         event_queue = std::unique_ptr<evl_event_queue>(
                         new evl_event_queue());
 }
@@ -78,10 +79,19 @@ void event_loop::register_file(file* f)
         }
 
         files.push_back(f);
+        flush();
+}
+
+void event_loop::unregister_file(file* f)
+{
+        files.remove(f);
+        flush();
 }
 
 int event_loop::flush()
 {
+        if(!event_queue)
+                return 0;
         event ev;
         ev.type = EV_FLUSH;
         event_queue->post_event(ev);
@@ -98,9 +108,9 @@ int event_loop::run()
 
 	while(true) {
 	        FD_ZERO(&read_fds);
+	        maxfd = 0;
 	        for(auto file: files) {
 	                if(file->fd > -1 && file->flags & FF_SELECT_READ) {
-	                        std::cout << "Select " << file->fd << std::endl;
 	                        FD_SET(file->fd, &read_fds);
 	                        maxfd = std::max(maxfd, file->fd);
 	                }

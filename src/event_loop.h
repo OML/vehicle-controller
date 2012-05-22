@@ -23,7 +23,7 @@
 
 #include "unixpipe.h"
 
-#include <vector>
+#include <list>
 #include <memory>
 
 #define EVL \
@@ -42,6 +42,7 @@ class event_loop
 
 		int                                     flush();
 		void 				        register_file(file* f);
+		void                                    unregister_file(file* f);
 
 		enum {
 		        EV_FLUSH,
@@ -52,7 +53,7 @@ class event_loop
 		};
 
 	private:
-		std::vector<file*>    files;
+		std::list<file*>    files;
 
                 class evl_event_queue: public unixpipe
                 {
