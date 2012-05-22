@@ -31,6 +31,8 @@ ufile::ufile(int fd): fd(fd)
 ufile::~ufile()
 {
         EVL->unregister_file(this);
+        if(fd > 0)
+                close();
 }
 
 void ufile::set_event_mask(ufile_event_mask_t mask)
