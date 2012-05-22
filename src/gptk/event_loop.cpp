@@ -98,15 +98,27 @@ int event_loop::flush()
         return 0;
 }
 
+void event_loop::stop()
+{
+        if(!event_queue)
+                return;
+
+        gracious_stop = true;
+        event ev;
+        ev.type = EV_STOP;
+        event_queue->post_event(ev);
+}
+
 int event_loop::run()
 {
         timeval timeout;
         int maxfd;
         fd_set read_fds;
+        gracious_stop = false;
 
 	FD_ZERO(&read_fds);
 
-	while(true) {
+	while(gracious_stop == false) {
 	        FD_ZERO(&read_fds);
 	        maxfd = 0;
 	        for(auto file: files) {
@@ -126,10 +138,8 @@ int event_loop::run()
 	        }
 
 	        for(auto file: files) {
-	                if(FD_ISSET(file->fd, &read_fds)) {
-	                        std::cout << "Activity " << file->fd << std::endl;
+	                if(FD_ISSET(file->fd, &read_fds))
 	                        file->data_available();
-	                }
 	        }
 	}
 

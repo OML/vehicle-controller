@@ -38,6 +38,7 @@ class event_loop
 		static event_loop*                      instance;
 
 		int 				        run();
+		void                                    stop();
 
 		int                                     flush();
 		void 				        register_file(ufile* f);
@@ -45,6 +46,7 @@ class event_loop
 
 		enum {
 		        EV_FLUSH,
+		        EV_STOP,
 		};
 		struct event
 		{
@@ -65,6 +67,7 @@ class event_loop
                 };
                 std::unique_ptr<evl_event_queue> event_queue;
 
+                bool gracious_stop;
 };
 
 #endif /* src/gptk/eventloop.h */
