@@ -60,6 +60,41 @@ void parse_args(int argc, char* argv[])
         }
 }
 
+class stdin_ep: public ufile
+{
+        public:
+                stdin_ep()
+                {
+                        set_event_mask(UFILE_EVENT_READ);
+                        set_fd(1);
+                }
+
+                void data_available()
+                {
+                        size_t buflen = bytes_available();
+                        char buffer[buflen];
+                        read(buffer, buflen);
+
+                        parse(buffer, buflen);
+                }
+
+
+                void parse(char* buffer, size_t len)
+                {
+                        char* start = buffer;
+                        size_t cur = 0;
+                        while(cur < len) {
+                                while(cur < len && isalnum(buffer[cur]))
+                                        cur++;
+
+                                if(strncmp(start, "exit", cur - (start - buffer)) == 0) {
+                                        EVL->stop();
+                                        return;
+                                }
+                        }
+                }
+};
+
 int main(int argc, char* argv[])
 {
         std::cout << gpl << std::endl;
@@ -71,10 +106,13 @@ int main(int argc, char* argv[])
 	auto serv = new server(port);
 	//auto main = new mainboard("/dev/ttyS0");
 
+	auto stdin = new stdin_ep();
+
 	int rv = evl->run();
 
 	delete serv;
 	//delete main;
+	delete stdin;
         delete evl;
 
         return rv;
