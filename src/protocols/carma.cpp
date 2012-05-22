@@ -95,7 +95,7 @@ int carma::read_sync()
                 pack.motors[3] = le16toh(pack.motors[3]);
                 return calibrate(pack.motors);
         } else {
-                MAINBOARD->set_throttle((pack.speed == 1), left, right);
+                MAINBOARD->set_throttle((pack.speed == 1), pack.left, pack.right);
         }
         return 0;
 }
