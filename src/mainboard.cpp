@@ -50,10 +50,21 @@ int mainboard::calibrate(uint16_t speeds[NMOTORS])
 int mainboard::set_tresholds(const event_tresholds& tresh)
 {
 #warning "mainboard::set_tresholds not implemented yet."
+        std::cout << "mainboard::set_tresholds not implemented yet." << std::endl;
         return -1;
 }
 
+int mainboard::set_throttle(bool fast, int left, int right)
+{
+#warning "mainboard::set_throttle not implemented yet."
+        std::cout << "mainboard::set_halt not implemented yet." << std::endl;
+        return -1;
+}
+
+
 int mainboard::halt()
 {
+#warning "mainboard::set_halt not implemented yet."
+        std::cout << "mainboard::set_halt not implemented yet." << std::endl;
         return -1;
 }

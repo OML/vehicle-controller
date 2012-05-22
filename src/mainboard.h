@@ -49,6 +49,7 @@ class mainboard: public file
 
                 int                     calibrate(uint16_t speeds[NMOTORS]);
                 int                     set_tresholds(const event_tresholds& tresh);
+                int                     set_throttle(bool fast, int left, int right);
                 int                     halt();
         private:
                 void                    data_available();
