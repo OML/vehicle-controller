@@ -14,7 +14,7 @@ ifdef SystemRoot # Windows
 else	# Linux
 	MKDIR=mkdir
 	MKDIR_P=$(MKDIR) -p
-	RMDIR=rmdir
+	RMDIR=rm -rf
 	RM=rm -rf
 	CP=cp -r
 	MV=mv
