@@ -48,7 +48,7 @@ void client::data_available()
         if(bytes_available() == 0) {
                 std::cout << "Disconnected " << fd << std::endl;
                 close();
-                delete this;
+                defer_delete();
                 return;
         }
 
