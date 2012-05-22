@@ -16,38 +16,35 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "file.h"
+#ifndef _SRC_FILE_H
+#define _SRC_FILE_H
 
-#include "ufile.h"
+#include <ufile.h>
 
-#include <fcntl.h>
+#include <string>
 
-file::file(): ufile()
+
+enum
 {
-}
+        F_CREATE = 0x01,
+        F_READONLY = 0x02,
+        F_WRITEONLY = 0x04,
+        F_READWRITE = 0x08,
+};
 
-file::file(const std::string& path): ufile()
+
+typedef unsigned int file_flags_t;
+
+class file: public ufile
 {
-        open(path);
-}
+        public:
+                file();
+                file(const std::string& path);
 
-int file::open(const std::string& path, file_flags_t flags)
-{
-        file::path = path;
-        int oflags = 0;
 
-        if(flags & F_CREATE)
-                oflags |= O_CREAT;
-        if(flags & F_READWRITE)
-                oflags |= O_RDWR;
-        if(flags & F_READONLY)
-                oflags |= O_RDONLY;
-        if(flags & F_WRITEONLY)
-                oflags |= O_WRONLY;
+                int open(const std::string& path, file_flags_t flags = F_CREATE | F_READWRITE);
+        private:
+                std::string path;
+};
 
-        int fd = ::open(path.c_str(), oflags);
-        if(fd == -1)
-                return -1;
-        set_fd(fd);
-        return 0;
-}
+#endif /* src/file.h */

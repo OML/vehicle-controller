@@ -16,9 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ufile.h"
-
-#include "event_loop.h"
+#include <ufile.h>
+#include <event_loop.h>
 
 #include <sys/ioctl.h>
 

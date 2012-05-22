@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "event_loop.h"
+#include <event_loop.h>
 
 #include "mainboard.h"
 

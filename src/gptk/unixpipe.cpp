@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "unixpipe.h"
+#include <unixpipe.h>
 
 unixpipe_endpoint::unixpipe_endpoint(unixpipe* pipe, int fd):
         ufile(fd), pipe(pipe)

@@ -19,8 +19,8 @@
 #ifndef _MAINBOARD_H
 #define _MAINBOARD_H
 
-#include "ufile.h"
-#include "config_file.h"
+#include <ufile.h>
+//#include <config_file.h>
 
 #include "protocols/general.h"
 
@@ -58,7 +58,7 @@ class mainboard: public ufile
                 void                    data_available();
 
                 float                   motor_multiplier[NMOTORS];
-                std::unique_ptr<config_file> config;
+  //              std::unique_ptr<config_file> config;
 
 };
 
