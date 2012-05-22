@@ -19,12 +19,12 @@
 #ifndef _SRC_CONFIG_FILE_H
 #define _SRC_CONFIG_FILE_H
 
-#include <ufile.h>
+#include <file.h>
 
 #include <map>
 #include <string>
 
-class config_file: public ufile
+class config_file: public file
 {
         public:
                 config_file(const std::string& path);
@@ -39,7 +39,7 @@ class config_file: public ufile
                 // Get property, if it doesn't exist set it to default (def).
                 std::string getdefault(const std::string& property, const std::string& def);
 
-                int open(const std::string& path);
+                int open(const std::string& path, file_flags_t flags = FILE_CREATE | FILE_READWRITE);
                 int save();
         private:
                 std::string path;

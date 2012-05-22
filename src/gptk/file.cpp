@@ -35,13 +35,13 @@ int file::open(const std::string& path, file_flags_t flags)
         file::path = path;
         int oflags = 0;
 
-        if(flags & F_CREATE)
+        if(flags & FILE_CREATE)
                 oflags |= O_CREAT;
-        if(flags & F_READWRITE)
+        if(flags & FILE_READWRITE)
                 oflags |= O_RDWR;
-        if(flags & F_READONLY)
+        if(flags & FILE_READONLY)
                 oflags |= O_RDONLY;
-        if(flags & F_WRITEONLY)
+        if(flags & FILE_WRITEONLY)
                 oflags |= O_WRONLY;
 
         int fd = ::open(path.c_str(), oflags);

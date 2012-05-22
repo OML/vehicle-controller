@@ -24,12 +24,13 @@
 #include <string>
 
 
+typedef unsigned int file_flags_t;
 enum
 {
-        F_CREATE = 0x01,
-        F_READONLY = 0x02,
-        F_WRITEONLY = 0x04,
-        F_READWRITE = 0x08,
+        FILE_CREATE = 0x01,
+        FILE_READONLY = 0x02,
+        FILE_WRITEONLY = 0x04,
+        FILE_READWRITE = 0x08,
 };
 
 
@@ -42,7 +43,7 @@ class file: public ufile
                 file(const std::string& path);
 
 
-                int open(const std::string& path, file_flags_t flags = F_CREATE | F_READWRITE);
+                int open(const std::string& path, file_flags_t flags = FILE_CREATE | FILE_READWRITE);
         private:
                 std::string path;
 };

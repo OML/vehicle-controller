@@ -18,9 +18,9 @@
 
 #include <config_file.h>
 
-config_file::config_file(const std::string& path)
+config_file::config_file(const std::string& path): file()
 {
-
+        open(path);
 }
 
 config_file::config_file()
@@ -31,3 +31,8 @@ config_file::~config_file()
 {
 }
 
+int config_file::open(const std::string& path, file_flags_t flags)
+{
+#warning "config_file::open not implemented"
+        return -1;
+}
