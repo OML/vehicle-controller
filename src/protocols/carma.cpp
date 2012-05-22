@@ -31,6 +31,12 @@
 
 #include "mainboard.h"
 
+static int print_err_packet_size(size_t have, size_t expect)
+{
+        std::cout << "Protocol error - Invalid packet size. Have " << have << ", expect " << expect << "." << std::endl;
+        return -1;
+}
+
 carma::carma(client* c): protocol(c)
 {
 
@@ -71,10 +77,9 @@ int carma::read_keepalive()
 {
         carma_keepalive_request req;
         size_t size = cl->read(reinterpret_cast<char*>(&req), sizeof(req));
-        if(size != sizeof(carma_keepalive_request)) {
-                std::cout << "Protocol error - Invalid packet size" << std::endl;
-                return -1;
-        }
+        if(size != sizeof(carma_keepalive_request))
+                return print_err_packet_size(size, sizeof(carma_keepalive_request));
+
         cl->write(reinterpret_cast<char*>(&req), sizeof(req));
         return 0;
 }
@@ -83,10 +88,9 @@ int carma::read_sync()
 {
         carma_sync_request pack;
         size_t size = cl->read((char*)&pack, sizeof(carma_sync_request));
-        if(size < sizeof(carma_sync_request)) {
-                std::cout << "Protocol error - Invalid packet size" << std::endl;
-                return -1;
-        }
+        if(size < sizeof(carma_sync_request))
+                return print_err_packet_size(size, sizeof(carma_sync_request));
+
 
         if(pack.calibrate == 1) {
                 pack.motors[0] = le16toh(pack.motors[0]);
@@ -103,10 +107,9 @@ int carma::read_sync()
 int carma::read_report()
 {
         carma_report_request req;
-        if(cl->bytes_available() < sizeof(carma_report_request)) {
-                std::cout << "Protocol error - Invalid packet size" << std::endl;
-                return -1;
-        }
+        if(cl->bytes_available() < sizeof(carma_report_request))
+                return print_err_packet_size(cl->bytes_available(), sizeof(carma_keepalive_request));
+
         size_t size = cl->read((char*)&req, sizeof(carma_report_request));
         if(size != sizeof(carma_report_request)) {
                 std::cout << "System error - Unable to read buffer" << std::endl;
@@ -177,6 +180,7 @@ err:
 
 int carma::start_reading()
 {
+        std::cout << "System buffer has " << cl->bytes_available() << " bytes available." << std::endl;
         carma_opcode opcode;
         if(cl->peek((char*)&opcode, sizeof(carma_opcode)) == -1) {
                 std::cout << "System error - Unable to peek" << std::endl;
@@ -185,19 +189,22 @@ int carma::start_reading()
 
         switch(opcode.op) {
                 case COP_SYNC:
+                        std::cout << "Read sync packet" << std::endl;
                         if(read_sync() < 0)
                                 return -1;
                         break;
                 case COP_REPORT:
+                        std::cout << "Read report packet" << std::endl;
                         if(read_report() < 0)
                                 return -1;
                         break;
                 case COP_KEEPALIVE:
+                        std::cout << "Read keepalive packet" << std::endl;
                         if(read_keepalive() < 0)
                                 return -1;
                         break;
                 default:
-                        std::cout << "Protocol error - Invalid opcode (" << opcode.op << ")" << std::endl;
+                        std::cout << "Protocol error - Invalid opcode (" << static_cast<short>(opcode.op) << ")" << std::endl;
                         return -1;
         }
 

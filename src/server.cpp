@@ -38,12 +38,16 @@ server::server(int port): file(-1)
 	struct sockaddr_in addr;
         int fd;
 	errno = 0;
+        int optval = 1;
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd < 0)
 		goto er_socket;
 
 	bzero(&addr, sizeof(struct sockaddr_in));
+
+
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
@@ -55,6 +59,7 @@ server::server(int port): file(-1)
 	        goto er_listen;
 
 	std::cout << "Server listening on port " << port << "." << std::endl;
+
 	set_fd(fd);
 
 	return;
@@ -70,7 +75,7 @@ er_socket:
 void server::accept()
 {
         sockaddr_in cli_addr;
-        socklen_t cli_len;
+        socklen_t cli_len = sizeof(cli_addr);
         client* cli;
         int cli_fd;
 

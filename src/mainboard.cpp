@@ -27,8 +27,12 @@ mainboard::mainboard(const char* sfile): file()
 {
         instance = this;
 
+
+        //config = std::unique_ptr<config_file>(new config_file("carmen.cfg"));
         for(int i = 0; i < NMOTORS; i++)
                 motor_multiplier[i] = 1.0f;
+
+        std::cout << "Mainboard fd: " << fd << std::endl;
 }
 
 void mainboard::data_available()

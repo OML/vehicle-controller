@@ -20,8 +20,11 @@
 #define _MAINBOARD_H
 
 #include "file.h"
+#include "config_file.h"
 
 #include "protocols/general.h"
+
+#include <memory>
 
 #define MAINBOARD \
         (const_cast<mainboard*>(mainboard::instance))
@@ -55,6 +58,7 @@ class mainboard: public file
                 void                    data_available();
 
                 float                   motor_multiplier[NMOTORS];
+                std::unique_ptr<config_file> config;
 
 };
 

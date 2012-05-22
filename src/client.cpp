@@ -50,8 +50,10 @@ void client::data_available()
                 return;
         }
 
-        std::cout << "Socket data available, " << bytes_available() << " bytes available" << std::endl;
-        proto->start_reading();
+        if(proto->start_reading() == -1) {
+                std::cout << "Protocol error. Disconnecting client." << std::endl;
+                close();
+        }
 }
 
 ssize_t client::peek(char* buffer, size_t size)

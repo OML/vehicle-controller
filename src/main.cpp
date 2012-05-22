@@ -69,12 +69,12 @@ int main(int argc, char* argv[])
         auto evl = new event_loop();
 
 	auto serv = new server(port);
-	auto main = new mainboard("/dev/ttyS0");
+	//auto main = new mainboard("/dev/ttyS0");
 
 	int rv = evl->run();
 
 	delete serv;
-	delete main;
+	//delete main;
         delete evl;
 }
 
