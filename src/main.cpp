@@ -76,6 +76,8 @@ int main(int argc, char* argv[])
 	delete serv;
 	//delete main;
         delete evl;
+
+        return rv;
 }
 
 
