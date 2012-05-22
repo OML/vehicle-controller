@@ -33,7 +33,8 @@ GPTK_SOURCES=\
 		gptk/event_loop.cpp \
 		gptk/ufile.cpp \
 		gptk/file.cpp \
-		gptk/unixpipe.cpp
+		gptk/unixpipe.cpp \
+		gptk/config_file.cpp
 SOURCES=$(GPTK_SOURCES) \
 	server.cpp \
 	client.cpp \
