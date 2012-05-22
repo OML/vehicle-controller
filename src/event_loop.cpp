@@ -116,11 +116,12 @@ int event_loop::run()
 	                }
 	        }
 
-	        timeout.tv_sec = 10;
+	        timeout.tv_sec = 2;
 	        timeout.tv_usec = 0;
 	        select(maxfd + 1, &read_fds, NULL, NULL, &timeout);
-	        if(timeout.tv_sec == 1 && timeout.tv_usec == 0) {
-	                MAINBOARD->halt();
+	        if(timeout.tv_sec == 2 && timeout.tv_usec == 0) {
+	                //MAINBOARD->halt();
+#warning "Not halting mainboard on timeout"
 	                continue;
 	        }
 
