@@ -20,7 +20,6 @@
 
 #include "event_loop.h"
 
-#include <fcntl.h>
 #include <sys/ioctl.h>
 
 
@@ -75,28 +74,4 @@ void ufile::set_fd(int f)
 {
         fd = f;
         EVL->flush();
-}
-
-
-
-int ufile::open(const std::string& path, unsigned int flags)
-{
-        ufile::flags &= ~FF_SELECT_READ;
-
-        int oflags = 0;
-
-        if(flags & F_CREATE)
-                oflags |= O_CREAT;
-        if(flags & F_READWRITE)
-                oflags |= O_RDWR;
-        if(flags & F_READONLY)
-                oflags |= O_RDONLY;
-        if(flags & F_WRITEONLY)
-                oflags |= O_WRONLY;
-
-        int fd = ::open(path.c_str(), oflags);
-        if(fd == -1)
-                return -1;
-        set_fd(fd);
-        return 0;
 }

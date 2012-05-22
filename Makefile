@@ -37,7 +37,8 @@ SOURCES=server.cpp \
 	protocols/protocol.cpp \
 	ufile.cpp \
 	mainboard.cpp \
-	unixpipe.cpp
+	unixpipe.cpp \
+	file.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build
