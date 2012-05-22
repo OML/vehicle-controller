@@ -144,20 +144,20 @@ int carma::read_report()
 
         closedir(dp);
 
-        psize = sizeof(carma_report_response);
+        psize = sizeof(carma_report_response_header);
         for(auto f: files)
                 psize += f.length() + 1;
         buffer = new char[psize];
 
-        struct carma_report_response* hdr;
-        hdr = reinterpret_cast<carma_report_response*>(buffer);
+        struct carma_report_response_header* hdr;
+        hdr = reinterpret_cast<carma_report_response_header*>(buffer);
 
         hdr->opcode.op = COP_REPORT;
         hdr->prot_ver = CARMA_VERSION;
         hdr->prot_rev = CARMA_REVISION;
         hdr->files_len = files.size();
 
-        pos = sizeof(carma_report_response);
+        pos = sizeof(carma_report_response_header);
 
         for(auto f: files) {
                 buffer[pos++] = f.length();

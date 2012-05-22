@@ -91,7 +91,7 @@ struct carma_keepalive_request
 } __attribute__((packed));
 
 
-struct carma_report_response
+struct carma_report_response_header
 {
         carma_opcode opcode;
         uint8_t padding;
