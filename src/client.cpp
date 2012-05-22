@@ -43,9 +43,14 @@ client::~client()
 
 void client::data_available()
 {
-        if(bytes_available() == 0)
+        if(bytes_available() == 0) {
+                std::cout << "Disconnected " << fd << std::endl;
                 close();
+                delete this;
+                return;
+        }
 
+        std::cout << "Socket data available, " << bytes_available() << " bytes available" << std::endl;
         proto->start_reading();
 }
 
