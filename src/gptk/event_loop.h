@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SRC_EVENTLOOP_H
-#define _SRC_EVENTLOOP_H
+#ifndef _SRC_GPTK_EVENTLOOP_H
+#define _SRC_GPTK_EVENTLOOP_H
 
 #include <ufile.h>
 #include <unixpipe.h>
@@ -67,4 +67,4 @@ class event_loop
 
 };
 
-#endif /* src/eventloop.h */
+#endif /* src/gptk/eventloop.h */

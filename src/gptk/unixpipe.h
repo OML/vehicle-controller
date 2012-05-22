@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PIPE_H
-#define _PIPE_H
+#ifndef _SRC_GPTK_PIPE_H
+#define _SRC_GPTK_PIPE_H
 
 #include <ufile.h>
 
@@ -64,4 +64,4 @@ class unixpipe
                 std::pair<std::unique_ptr<unixpipe_endpoint>, std::unique_ptr<unixpipe_endpoint> > endpoints;
 };
 
-#endif /* pipe.h */
+#endif /* src/gptk/pipe.h */

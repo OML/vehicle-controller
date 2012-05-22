@@ -60,4 +60,4 @@ class ufile
                 void set_event_mask(ufile_event_mask_t mask);
 };
 
-#endif /* src/ufile.h */
+#endif /* src/gptk/ufile.h */

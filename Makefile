@@ -27,18 +27,20 @@ BINDIR=bin
 OBJDIR=obj
 SRCDIR=src
 
-INCLUDES=-I$(INCDIR) -Isrc/protocols -Isrc/
+INCLUDES=-I$(INCDIR) -Isrc/protocols -Isrc/ -Isrc/gptk/
 OUTPUT=$(BINDIR)/server
-SOURCES=server.cpp \
+GPTK_SOURCES=\
+		gptk/event_loop.cpp \
+		gptk/ufile.cpp \
+		gptk/file.cpp \
+		gptk/unixpipe.cpp
+SOURCES=$(GPTK_SOURCES) \
+	server.cpp \
 	client.cpp \
-	event_loop.cpp \
 	main.cpp \
 	protocols/carma.cpp \
 	protocols/protocol.cpp \
-	ufile.cpp \
-	mainboard.cpp \
-	unixpipe.cpp \
-	file.cpp
+	mainboard.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build

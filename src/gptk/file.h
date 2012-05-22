@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _SRC_FILE_H
-#define _SRC_FILE_H
+#ifndef _SRC_GPTK_FILE_H
+#define _SRC_GPTK_FILE_H
 
 #include <ufile.h>
 
@@ -47,4 +47,4 @@ class file: public ufile
                 std::string path;
 };
 
-#endif /* src/file.h */
+#endif /* src/gptk/file.h */
