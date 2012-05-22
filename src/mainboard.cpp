@@ -19,6 +19,7 @@
 #include "mainboard.h"
 
 #include <algorithm>
+#include <iostream>
 
 mainboard* mainboard::instance = NULL;
 
