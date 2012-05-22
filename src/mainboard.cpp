@@ -23,7 +23,7 @@
 
 mainboard* mainboard::instance = NULL;
 
-mainboard::mainboard(const char* sfile): file()
+mainboard::mainboard(const char* sfile): ufile()
 {
         instance = this;
 

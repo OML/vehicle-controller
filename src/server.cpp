@@ -19,7 +19,7 @@
 #include "server.h"
 
 #include "client.h"
-#include "file.h"
+#include "ufile.h"
 
 #include <iostream>
 #include <memory>
@@ -33,7 +33,7 @@
 
 #include "event_loop.h"
 
-server::server(int port): file(-1)
+server::server(int port): ufile(-1)
 {
 	struct sockaddr_in addr;
         int fd;

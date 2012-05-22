@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "file.h"
+#include "ufile.h"
 
 #include "event_loop.h"
 
@@ -24,33 +24,33 @@
 #include <sys/ioctl.h>
 
 
-file::file(int fd): fd(fd)
+ufile::ufile(int fd): fd(fd)
 {
         flags = FF_SELECT_READ;
         EVL->register_file(this);
 }
 
-file::~file()
+ufile::~ufile()
 {
         EVL->unregister_file(this);
 }
 
-ssize_t file::read(char* buffer, size_t size)
+ssize_t ufile::read(char* buffer, size_t size)
 {
         return ::read(fd, buffer, size);
 }
 
-ssize_t file::peek(char* buffer, size_t size)
+ssize_t ufile::peek(char* buffer, size_t size)
 {
         return -1; // Not supported
 }
 
-ssize_t file::write(const char* buffer, size_t size)
+ssize_t ufile::write(const char* buffer, size_t size)
 {
         return ::write(fd, buffer, size);
 }
 
-int file::close()
+int ufile::close()
 {
         ::close(fd);
         set_fd(-1);
@@ -58,12 +58,12 @@ int file::close()
         return 0;
 }
 
-void file::data_available()
+void ufile::data_available()
 {
         //flags &= ~FF_SELECT_READ;
 }
 
-size_t file::bytes_available()
+size_t ufile::bytes_available()
 {
         size_t size;
         if(::ioctl(fd, FIONREAD, (char*)&size) < 0)
@@ -71,7 +71,7 @@ size_t file::bytes_available()
         return size;
 }
 
-void file::set_fd(int f)
+void ufile::set_fd(int f)
 {
         fd = f;
         EVL->flush();
@@ -79,9 +79,9 @@ void file::set_fd(int f)
 
 
 
-int file::open(const std::string& path, unsigned int flags)
+int ufile::open(const std::string& path, unsigned int flags)
 {
-        file::flags &= ~FF_SELECT_READ;
+        ufile::flags &= ~FF_SELECT_READ;
 
         int oflags = 0;
 

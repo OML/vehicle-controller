@@ -19,7 +19,7 @@
 #ifndef _MAINBOARD_H
 #define _MAINBOARD_H
 
-#include "file.h"
+#include "ufile.h"
 #include "config_file.h"
 
 #include "protocols/general.h"
@@ -43,7 +43,7 @@ struct mbtophy_packet
         motor_data      motors[NMOTORS];
 } __attribute__((packed));
 
-class mainboard: public file
+class mainboard: public ufile
 {
         public:
                 mainboard(const char* sfile);

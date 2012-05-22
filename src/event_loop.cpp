@@ -71,7 +71,7 @@ event_loop::event_loop()
                         new evl_event_queue());
 }
 
-void event_loop::register_file(file* f)
+void event_loop::register_file(ufile* f)
 {
         if(f == NULL) {
                 std::cout << "Invalid file" << std::cout;
@@ -82,7 +82,7 @@ void event_loop::register_file(file* f)
         flush();
 }
 
-void event_loop::unregister_file(file* f)
+void event_loop::unregister_file(ufile* f)
 {
         files.remove(f);
         flush();

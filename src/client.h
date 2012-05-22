@@ -26,7 +26,7 @@
 
 #include "protocols/protocol.h"
 
-#include "file.h"
+#include "ufile.h"
 
 enum
 {
@@ -34,7 +34,7 @@ enum
 	PROT_CARMA,
 };
 
-class client: public file
+class client: public ufile
 {
 	public:
 		client(int fd, int protocol = PROT_CARMA);

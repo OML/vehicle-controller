@@ -35,7 +35,7 @@ SOURCES=server.cpp \
 	main.cpp \
 	protocols/carma.cpp \
 	protocols/protocol.cpp \
-	file.cpp \
+	ufile.cpp \
 	mainboard.cpp \
 	unixpipe.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)

@@ -19,12 +19,12 @@
 #ifndef _PIPE_H
 #define _PIPE_H
 
-#include "file.h"
+#include "ufile.h"
 
 #include <memory>
 
 class unixpipe;
-class unixpipe_endpoint: public file
+class unixpipe_endpoint: public ufile
 {
         friend class unixpipe;
 

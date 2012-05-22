@@ -25,7 +25,7 @@
 
 #include <sys/socket.h>
 
-client::client(int fd, int prot): file(fd)
+client::client(int fd, int prot): ufile(fd)
 {
         switch(prot) {
                 case PROT_CARMA:

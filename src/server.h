@@ -21,9 +21,9 @@
 
 #include <memory>
 
-#include "file.h"
+#include "ufile.h"
 
-class server: public file
+class server: public ufile
 {
 	public:
     		server(int port);

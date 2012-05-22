@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FILE_H
-#define _FILE_H
+#ifndef _SRC_UFILE_H
+#define _SRC_UFILE_H
 
 #include <sys/types.h>
 
@@ -36,11 +36,11 @@ enum
         F_READWRITE = 0x08,
 };
 
-class file
+class ufile
 {
         public:
-                file(int fd = -1);
-                virtual ~file();
+                ufile(int fd = -1);
+                virtual ~ufile();
 
                 virtual ssize_t read(char*, size_t size);
                 virtual ssize_t write(const char* buffer, size_t size);
@@ -65,4 +65,4 @@ class file
                 unsigned int    flags;
 };
 
-#endif /* file.h */
+#endif /* src/ufile.h */

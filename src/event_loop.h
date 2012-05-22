@@ -19,7 +19,7 @@
 #ifndef _SRC_EVENTLOOP_H
 #define _SRC_EVENTLOOP_H
 
-#include "file.h"
+#include "ufile.h"
 
 #include "unixpipe.h"
 
@@ -41,8 +41,8 @@ class event_loop
 		int 				        run();
 
 		int                                     flush();
-		void 				        register_file(file* f);
-		void                                    unregister_file(file* f);
+		void 				        register_file(ufile* f);
+		void                                    unregister_file(ufile* f);
 
 		enum {
 		        EV_FLUSH,
@@ -53,7 +53,7 @@ class event_loop
 		};
 
 	private:
-		std::list<file*>    files;
+		std::list<ufile*>    files;
 
                 class evl_event_queue: public unixpipe
                 {

@@ -19,7 +19,7 @@
 #include "unixpipe.h"
 
 unixpipe_endpoint::unixpipe_endpoint(unixpipe* pipe, int fd):
-        file(fd), pipe(pipe)
+        ufile(fd), pipe(pipe)
 {
 }
 
