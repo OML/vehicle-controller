@@ -34,6 +34,7 @@ class event_loop
 {
 	public:
 		event_loop();
+		~event_loop();
 	
 		static event_loop*                      instance;
 

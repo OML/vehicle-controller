@@ -74,6 +74,13 @@ event_loop::event_loop()
                         new evl_event_queue());
 }
 
+event_loop::~event_loop()
+{
+        for(auto f: files) {
+                delete f;
+        }
+}
+
 void event_loop::register_file(ufile* f)
 {
         if(f == NULL) {
