@@ -85,6 +85,7 @@ void server::accept()
         if(cli_fd) {
                 std::cout << "Incoming connection" << std::endl;
                 cli = new client(cli_fd);
+                (void)cli; // Prevent compile error 'cli not used'
         }
 }
 
