@@ -19,7 +19,7 @@
 #ifndef _SRC_PROTOCOLS_GENERAL_H
 #define _SRC_PROTOCOLS_GENERAL_H
 
-#include <cstdint>
+#include <stdint.h>
 
 typedef uint16_t voltage_t;
 typedef uint16_t current_t;

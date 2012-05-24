@@ -21,17 +21,15 @@
 
 #include <ufile.h>
 
-#include <memory>
-
 class unixpipe;
 class unixpipe_endpoint: public ufile
 {
         friend class unixpipe;
 
-        public:
+        private:
                 // Prevent copying
-                unixpipe_endpoint(const unixpipe_endpoint& other) = delete;
-                unixpipe_endpoint& operator=(const unixpipe_endpoint& other) = delete;
+                unixpipe_endpoint(const unixpipe_endpoint& other) {*this = other;};
+                unixpipe_endpoint& operator=(const unixpipe_endpoint& other) {return *this;};
 
                 virtual ~unixpipe_endpoint();
 
@@ -49,19 +47,23 @@ class unixpipe
 
         public:
                 unixpipe();
-
-                // Prevent copying
-                unixpipe(const unixpipe& other) = delete;
-                unixpipe& operator=(const unixpipe& other) = delete;
+                ~unixpipe();
 
                 // Beware, these pointers do not exists longer than the lifetime of
                 //      the complete pipe
-                inline unixpipe_endpoint* first() {return  endpoints.first.get();};
-                inline unixpipe_endpoint* second() {return endpoints.second.get();};
+                inline unixpipe_endpoint* first() {return m_first;};
+                inline unixpipe_endpoint* second() {return m_second;};
+
+        private:
+                // Prevent copying
+                unixpipe(const unixpipe& other) {*this = other;};
+                unixpipe& operator=(const unixpipe& other) {return *this;};
+
         protected:
                 virtual void data_available(unixpipe_endpoint* ep) = 0;
         private:
-                std::pair<std::unique_ptr<unixpipe_endpoint>, std::unique_ptr<unixpipe_endpoint> > endpoints;
+                unixpipe_endpoint* m_first;
+                unixpipe_endpoint* m_second;
 };
 
 #endif /* src/gptk/pipe.h */

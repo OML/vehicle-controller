@@ -20,8 +20,6 @@
 #ifndef _CLIENT_H
 #define _CLIENT_H
 
-#include <memory>
-
 #include <sys/types.h>
 
 #include "protocols/protocol.h"
@@ -44,7 +42,7 @@ class client: public ufile
 	friend class event_loop;
 	protected:
 
-		std::unique_ptr<protocol> proto;
+		protocol* proto;
 
 	private:
 		void data_available();

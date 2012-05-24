@@ -20,6 +20,7 @@
 #include <event_loop.h>
 
 #include <sys/ioctl.h>
+#include <unistd.h>
 
 
 ufile::ufile(int fd): fd(fd)

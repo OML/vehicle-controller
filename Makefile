@@ -1,5 +1,5 @@
 CPP=g++
-CPPFLAGS=-Wall -c -std=c++0x -ggdb3
+CPPFLAGS=-Wall -c -ggdb3
 LD=g++
 LDFLAGS=
 

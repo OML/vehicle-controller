@@ -24,8 +24,6 @@
 
 #include "protocols/general.h"
 
-#include <memory>
-
 #define MAINBOARD \
         (const_cast<mainboard*>(mainboard::instance))
 
@@ -52,6 +50,7 @@ class mainboard: public ufile
 {
         public:
                 mainboard(const char* sfile);
+                ~mainboard();
 
                 static mainboard*       instance;
 
@@ -63,7 +62,7 @@ class mainboard: public ufile
                 void                    data_available();
 
                 float                   motor_multiplier[NMOTORS];
-                std::unique_ptr<config_file> config;
+                config_file*            config;
 
 };
 

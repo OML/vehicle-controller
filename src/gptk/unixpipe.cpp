@@ -17,6 +17,8 @@
  */
 
 #include <unixpipe.h>
+#include <unistd.h>
+
 
 unixpipe_endpoint::unixpipe_endpoint(unixpipe* pipe, int fd):
         ufile(fd), pipe(pipe)
@@ -36,15 +38,17 @@ void unixpipe_endpoint::data_available()
 unixpipe::unixpipe()
 {
         int pipes[2];
-        if(pipe(pipes) < 0)
-                endpoints = {nullptr, nullptr};
-        endpoints = {
-                        std::unique_ptr<unixpipe_endpoint>(
-                                        new unixpipe_endpoint(this, pipes[0])
-                        ),
-                        std::unique_ptr<unixpipe_endpoint>(
-                                        new unixpipe_endpoint(this, pipes[1])
-                        )
-        };
+        if(pipe(pipes) < 0) {
+                m_first = m_second = NULL;
+        }
+        m_first = new unixpipe_endpoint(this, pipes[0]);
+        m_second = new unixpipe_endpoint(this, pipes[1]);
 }
 
+unixpipe::~unixpipe()
+{
+        if(m_first)
+                delete m_first;
+        if(m_second)
+                delete m_second;
+}

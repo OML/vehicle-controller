@@ -23,7 +23,7 @@
 
 #include "general.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <sys/types.h>
 
 // Supported version

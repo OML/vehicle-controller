@@ -23,7 +23,6 @@
 #include <unixpipe.h>
 
 #include <list>
-#include <memory>
 
 #define EVL \
         (const_cast<event_loop*>(event_loop::instance))
@@ -73,7 +72,7 @@ class event_loop
                                 void process_event(event& ev);
                                 void data_available(unixpipe_endpoint* ep);
                 };
-                std::unique_ptr<evl_event_queue> event_queue;
+                evl_event_queue* event_queue;
 
                 bool gracious_stop;
 };

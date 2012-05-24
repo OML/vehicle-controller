@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <string>
 #include <cstring>
+#include <cstdlib>
 
 std::string gpl =
         "OML-vehicle-controller  Copyright (C) 2012  OML\n"
@@ -35,6 +36,10 @@ std::string gpl =
 int port = 1337;
 const char* progname = NULL;
 
+static void print_helpline(const std::string& sw, const std::string& value)
+{
+        std::cout << "  " << sw << std::setw(8) << " " << value << std::endl;
+}
 
 void parse_args(int argc, char* argv[])
 {
@@ -50,10 +55,9 @@ void parse_args(int argc, char* argv[])
                         std::cout << "Syntax: " << progname << " [options]" << std::endl;
                         std::cout << std::endl;
                         std::cout << "Options:" << std::endl;
-                        auto ph = [](std::string sw, std::string val) {std::cout << "  " << sw << std::setw(8) << " " << val << std::endl;};
-                        ph("-c", "Conditions information");
-                        ph("-w", "Warranty information");
-                        ph("--help", "This information");
+                        print_helpline("-c", "Conditions information");
+                        print_helpline("-w", "Warranty information");
+                        print_helpline("--help", "This information");
 
                         exit(0);
                 }
@@ -101,12 +105,12 @@ int main(int argc, char* argv[])
 
         parse_args(argc, argv);
 
-        auto evl = new event_loop();
+        event_loop* evl = new event_loop();
 
-	auto serv = new server(port);
+	server* serv = new server(port);
 	//auto main = new mainboard("/dev/ttyS0");
 
-	auto stdin = new stdin_ep();
+	stdin_ep* stdin = new stdin_ep();
 
 	int rv = evl->run();
 

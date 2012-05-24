@@ -31,16 +31,18 @@ client::client(int fd, int prot): ufile(fd)
 
         switch(prot) {
                 case PROT_CARMA:
-                        proto = std::unique_ptr<carma>(new carma(this));
+                        proto = new carma(this);
                         break;
                 default:
+                        proto = NULL;
                         std::cout << "Unsupported protocol (" << prot << ")" << std::endl;
         }
 }
 
 client::~client()
 {
-
+        if(proto)
+                delete proto;
 }
 
 void client::data_available()

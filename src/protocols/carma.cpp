@@ -145,8 +145,8 @@ int carma::read_report()
         closedir(dp);
 
         psize = sizeof(carma_report_response_header);
-        for(auto f: files)
-                psize += f.length() + 1;
+        for(std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++)
+                psize += (*it).length() + 1;
         buffer = new char[psize];
 
         struct carma_report_response_header* hdr;
@@ -159,10 +159,10 @@ int carma::read_report()
 
         pos = sizeof(carma_report_response_header);
 
-        for(auto f: files) {
-                buffer[pos++] = f.length();
-                memcpy(&buffer[pos], f.c_str(), f.length());
-                pos += f.length();
+        for(std::vector<std::string>::const_iterator it = files.begin(); it != files.end(); it++) {
+                buffer[pos++] = (*it).length();
+                memcpy(&buffer[pos], (*it).c_str(), (*it).length());
+                pos += (*it).length();
         }
 
         if(cl->write(buffer, psize) < 0) {

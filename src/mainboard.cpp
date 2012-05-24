@@ -28,11 +28,16 @@ mainboard::mainboard(const char* sfile): ufile()
         instance = this;
         set_event_mask(UFILE_EVENT_READ);
 
-        config = std::unique_ptr<config_file>(new config_file("carmen.cfg"));
+        config = new config_file("carmen.cfg");
         for(int i = 0; i < NMOTORS; i++)
                 motor_multiplier[i] = 1.0f;
 
         std::cout << "Mainboard fd: " << fd << std::endl;
+}
+
+mainboard::~mainboard()
+{
+        delete config;
 }
 
 void mainboard::data_available()

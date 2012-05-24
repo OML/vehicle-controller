@@ -23,7 +23,6 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
-#include <memory>
 
 #include <sys/select.h>
 
@@ -70,15 +69,15 @@ event_loop::event_loop()
          * reading.
          */
         event_queue = NULL;
-        event_queue = std::unique_ptr<evl_event_queue>(
-                        new evl_event_queue());
+        event_queue = new evl_event_queue();
 }
 
 event_loop::~event_loop()
 {
-        for(auto f: files) {
-                delete f;
+        for(std::list<ufile*>::iterator it = files.begin(); it != files.end(); it++) {
+                delete (*it);
         }
+        delete event_queue;
 }
 
 void event_loop::register_file(ufile* f)
@@ -121,6 +120,7 @@ void event_loop::stop()
 
 int event_loop::run()
 {
+        std::list<ufile*>::iterator it;
         timeval timeout;
         int maxfd;
         fd_set read_fds;
@@ -131,10 +131,10 @@ int event_loop::run()
 	while(gracious_stop == false) {
 	        FD_ZERO(&read_fds);
 	        maxfd = 0;
-	        for(auto file: files) {
-	                if(file->fd > -1 && file->event_mask & UFILE_EVENT_READ) {
-	                        FD_SET(file->fd, &read_fds);
-	                        maxfd = std::max(maxfd, file->fd);
+	        for(it = files.begin(); it != files.end(); it++) {
+	                if((*it)->fd > -1 && (*it)->event_mask & UFILE_EVENT_READ) {
+	                        FD_SET((*it)->fd, &read_fds);
+	                        maxfd = std::max(maxfd, (*it)->fd);
 	                }
 	        }
 
@@ -147,9 +147,10 @@ int event_loop::run()
 	                continue;
 	        }
 
-	        for(auto file: files) {
-	                if(FD_ISSET(file->fd, &read_fds))
-	                        file->data_available();
+
+	        for(it = files.begin(); it != files.end(); it++) {
+	                if(FD_ISSET((*it)->fd, &read_fds))
+	                        (*it)->data_available();
 	        }
 	}
 
