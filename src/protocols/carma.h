@@ -73,8 +73,7 @@ struct carma_sync_response
         uint32_t timestamp;
         motor_data motors[4];
         gyro_t gyro[3];
-        voltage_t accu_voltage;
-        current_t accu_current;
+        accu_data accu;
 } __attribute__((packed));
 
 struct carma_report_request

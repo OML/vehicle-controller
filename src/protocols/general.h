@@ -35,6 +35,14 @@ struct motor_data
         temperature_t   temperature;    // tenth degrees
 } __attribute__((packed));
 
+struct accu_data
+{
+        voltage_t       voltage;
+        current_t       current;
+        temperature_t   accu_temps[2];
+        temperature_t   cable_temps[4];
+} __attribute__((packed));
+
 struct device_data
 {
         voltage_t       voltage;        // millivolts

@@ -43,6 +43,11 @@ struct mbtophy_packet
         motor_data      motors[NMOTORS];
 } __attribute__((packed));
 
+struct phytomb_packet
+{
+
+} __attribute__((packed));
+
 class mainboard: public ufile
 {
         public:
