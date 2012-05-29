@@ -22,7 +22,6 @@
 #include <ufile.h>
 #include <config_file.h>
 
-#include "bus/bus.h"
 
 #include "protocols/general.h"
 
@@ -33,7 +32,7 @@
 
 
 
-class mainboard: public ufile
+class mainboard: public file
 {
         public:
                 mainboard(const char* sfile);

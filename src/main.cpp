@@ -33,8 +33,12 @@ std::string gpl =
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; run with `-c' for details.\n";
 
+const char* ttyS0 = "/dev/ttyS0";
+
 int port = 1337;
 const char* progname = NULL;
+const char* mainboard_file = ttyS0;
+
 
 static void print_helpline(const std::string& sw, const std::string& value)
 {
@@ -51,16 +55,19 @@ void parse_args(int argc, char* argv[])
                 } else if(strcmp(argv[i], "-w") == 0) {
                         std::cout << "TODO - warranty" << std::endl;
                         exit(0);
+                } else if(strcmp(argv[i], "-f") == 0) {
+                        mainboard_file = argv[++i];
                 } else if(strcmp(argv[i], "--help") == 0) {
                         std::cout << "Syntax: " << progname << " [options]" << std::endl;
                         std::cout << std::endl;
                         std::cout << "Options:" << std::endl;
-                        print_helpline("-c", "Conditions information");
-                        print_helpline("-w", "Warranty information");
+                        print_helpline("-c    ", "Conditions information");
+                        print_helpline("-w    ", "Warranty information");
+                        print_helpline("-f    ", "Specifiy Mainboard FIFO (default /dev/ttyS0)");
                         print_helpline("--help", "This information");
-
                         exit(0);
                 }
+
         }
 }
 
@@ -108,7 +115,7 @@ int main(int argc, char* argv[])
         event_loop* evl = new event_loop();
 
 	server* serv = new server(port);
-	mainboard* main = new mainboard("/dev/ttyS0");
+	mainboard* main = new mainboard(mainboard_file);
 
 	stdin_ep* stdin = new stdin_ep();
 
