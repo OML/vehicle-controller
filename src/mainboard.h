@@ -19,9 +19,12 @@
 #ifndef _MAINBOARD_H
 #define _MAINBOARD_H
 
+#include <string>
+
 #include <ufile.h>
 #include <config_file.h>
 
+#include "bus/busprot.h"
 
 #include "protocols/general.h"
 
@@ -32,10 +35,10 @@
 
 
 
-class mainboard: public file
+class mainboard: public ufile
 {
         public:
-                mainboard(const char* sfile);
+                mainboard(const std::string& sfile);
                 ~mainboard();
 
                 static mainboard*       instance;
@@ -46,10 +49,22 @@ class mainboard: public file
                 int                     halt();
         private:
                 void                    data_available();
+                void                    process_packet(const char* data);
+                void                    process_hello(const char* data);
+
+
+                void                    open_fifo();
+
+                void                    bus_write(const char* data, size_t len);
 
                 float                   motor_multiplier[NMOTORS];
                 config_file*            config;
 
+                std::string sfile;
+
+
+                bus_addr_t              my_addr;
+                bus_addr_t              host_addr;
 };
 
 #endif /* mainboard.h */

@@ -21,12 +21,16 @@
 #include <algorithm>
 #include <iostream>
 
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <termios.h>
 
 #include "bus/busprot.h"
 
 mainboard* mainboard::instance = NULL;
 
-mainboard::mainboard(const char* sfile): file()
+mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 {
         instance = this;
         set_event_mask(UFILE_EVENT_READ);
@@ -35,7 +39,7 @@ mainboard::mainboard(const char* sfile): file()
         for(int i = 0; i < NMOTORS; i++)
                 motor_multiplier[i] = 1.0f;
 
-        open(sfile);
+        open_fifo();
 
         std::cout << "Mainboard fd: " << fd << std::endl;
 }
@@ -45,9 +49,64 @@ mainboard::~mainboard()
         delete config;
 }
 
+void mainboard::open_fifo()
+{
+        int fd = ::open(sfile.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+        struct termios opts;
+        ioctl(fd, TCGETS, &opts);
+        opts.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+                                | INLCR | IGNCR | ICRNL | IXON);
+        opts.c_oflag &= ~OPOST;
+        opts.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+        opts.c_cflag &= ~(CSIZE | PARENB);
+        opts.c_cflag |= CS8 | CREAD | B19200;
+
+        ioctl(fd, TCSETS, &opts);
+
+        set_fd(fd);
+}
+
 void mainboard::data_available()
 {
+        uint16_t len;
+        read((char*)&len, sizeof(uint16_t));
 
+        char buffer[len];
+        read((char*)&buffer, len - sizeof(uint16_t));
+
+        process_packet(buffer);
+}
+
+void mainboard::process_hello(const char* data)
+{
+        struct bus_hello* pack = (struct bus_hello*)data;
+        my_addr = pack->hdr.daddr;
+        host_addr = pack->hdr.saddr;
+
+        struct bus_hello_reply repl;
+        repl.hdr.saddr = my_addr;
+        repl.hdr.daddr = host_addr;
+        repl.hdr.opcode.op = BUSOP_HELLO;
+        repl.devtype = DT_IPC;
+
+        bus_write((char*)&repl, sizeof(repl));
+}
+
+void mainboard::bus_write(const char* data, size_t len)
+{
+        uint16_t size = htole16(len);
+        write((char*)&size, sizeof(uint16_t));
+        write(data, len);
+}
+void mainboard::process_packet(const char* data)
+{
+        struct bus_opc* opc = (struct bus_opc*)data;
+
+        switch(opc->op) {
+                case BUSOP_HELLO:
+                        process_hello(data);
+                        break;
+        }
 }
 
 int mainboard::calibrate(uint16_t speeds[NMOTORS])
