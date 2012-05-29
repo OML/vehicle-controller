@@ -32,7 +32,8 @@ struct bus_opc
 struct bus_header
 {
         struct bus_opc opcode;
-        bus_addr_t addr;
+        bus_addr_t saddr;
+        bus_addr_t daddr;
 } __attribute__((packed));
 
 
