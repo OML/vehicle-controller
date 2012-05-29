@@ -1,7 +1,7 @@
 #ifndef _BUSPROT_H
 #define _BUSPROT_H
 
-#include "device.h"
+#include <stdint.h>
 
 typedef uint16_t bus_addr_t;
 typedef uint16_t bus_devtype_t;

@@ -1,9 +1,6 @@
 #ifndef _SRC_BUS_H
 #define _SRC_BUS_H
 
-#include "uart.h"
-#include "device.h"
-
 
 #include "busprot.h"
 
