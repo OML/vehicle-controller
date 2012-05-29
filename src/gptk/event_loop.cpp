@@ -74,8 +74,12 @@ event_loop::event_loop()
 
 event_loop::~event_loop()
 {
-        for(std::list<ufile*>::iterator it = files.begin(); it != files.end(); it++) {
-                delete (*it);
+        delete event_queue;
+        ufile* f;
+        while(files.size() > 0) {
+                f = files.back();
+                files.pop_back();
+                delete f;
         }
         delete event_queue;
 }
