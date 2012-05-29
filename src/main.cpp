@@ -108,14 +108,14 @@ int main(int argc, char* argv[])
         event_loop* evl = new event_loop();
 
 	server* serv = new server(port);
-	//auto main = new mainboard("/dev/ttyS0");
+	mainboard* main = new mainboard("/dev/ttyS0");
 
 	stdin_ep* stdin = new stdin_ep();
 
 	int rv = evl->run();
 
 	delete serv;
-	//delete main;
+	delete main;
 	delete stdin;
         delete evl;
 
