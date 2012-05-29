@@ -22,6 +22,8 @@
 #include <ufile.h>
 #include <config_file.h>
 
+#include "bus/bus.h"
+
 #include "protocols/general.h"
 
 #define MAINBOARD \
@@ -30,21 +32,6 @@
 #define NMOTORS 4
 
 
-// Possible values for mbtophy_packet.flags
-#define MBP_ERROR               (1 << 0)
-#define MBP_RESET               (1 << 1)
-#define MBP_UNDERVOLTAGE        (1 << 2)
-
-struct mbtophy_packet
-{
-        uint32_t        flags;
-        motor_data      motors[NMOTORS];
-} __attribute__((packed));
-
-struct phytomb_packet
-{
-
-} __attribute__((packed));
 
 class mainboard: public ufile
 {
