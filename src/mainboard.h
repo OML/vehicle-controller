@@ -60,6 +60,7 @@ class mainboard: public ufile
                 void                    process_packet(const char* data);
                 void                    process_hello(const char* data);
 
+                void                    acquire_address();
 
                 void                    open_fifo();
 

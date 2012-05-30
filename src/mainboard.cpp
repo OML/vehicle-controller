@@ -70,6 +70,8 @@ void mainboard::open_fifo()
 
         ioctl(fd, TCSETS, &opts);
 
+        acquire_address();
+
         set_fd(fd);
 }
 
@@ -96,26 +98,68 @@ void mainboard::data_available()
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
                 if(read_buffer_length >= len) {
                         process_packet(read_buffer);
-                        free(read_buffer);
+                        free(read_buffer + sizeof(uint16_t));
                         read_buffer = NULL;
                         read_buffer_length = 0;
                 }
         }
 }
 
+static struct bus_hdr* get_bus_header(char* data)
+{
+        return (bus_hdr*)data;
+}
+
+static struct bus_hello* get_bus_hello(char* data)
+{
+        return (bus_hello*)((char*)get_bus_header(data) + sizeof(bus_hdr));
+}
+
+static struct bus_hello_reply* get_bus_hello_reply(char* data)
+{
+        return (bus_hello_reply*)((char*)get_bus_header(data) + sizeof(bus_hdr));
+}
+
+static struct bus_event_hdr* get_bus_event_header(char* data)
+{
+        return (bus_event_hdr*)((char*)get_bus_header(data) + sizeof(bus_hdr));
+}
+
+static struct bus_set_motor_driver* get_bus_set_motor_driver(char* data)
+{
+        return (bus_set_motor_driver*)((char*)get_bus_event_header(data) + sizeof(bus_event_hdr));
+}
+
 void mainboard::process_hello(const char* data)
 {
-        struct bus_hello* pack = (struct bus_hello*)data;
-        my_addr = le16toh(pack->hdr.daddr);
-        host_addr = le16toh(pack->hdr.saddr);
+        bus_hdr* header = get_bus_header(const_cast<char*>(data));
 
-        struct bus_hello_reply repl;
-        repl.hdr.saddr = htole16(my_addr);
-        repl.hdr.daddr = htole16(host_addr);
-        repl.hdr.opcode.op = htole16(BUSOP_HELLO);
-        repl.devtype = htole16(DT_IPC);
+        my_addr = le16toh(header->daddr);
+        host_addr = le16toh(header->saddr);
 
-        bus_write((char*)&repl, sizeof(repl));
+        size_t resp_len = (size_t)get_bus_hello_reply(NULL) + sizeof(bus_hello_reply);
+        char response_buffer[resp_len];
+        header = get_bus_header(response_buffer);
+        bus_hello_reply* reply = get_bus_hello_reply(response_buffer);
+
+        header->saddr = htole16(my_addr);
+        header->daddr = htole16(host_addr);
+        header->opcode.op = htole16(BUSOP_HELLO);
+        reply->devtype = htole16(DT_IPC);
+
+        bus_write(response_buffer, resp_len);
+}
+
+void mainboard::acquire_address()
+{
+        size_t req_size = (size_t)get_bus_header(NULL) + sizeof(bus_hdr);
+        char req[req_size];
+        bus_hdr* header = get_bus_header(req);
+        header->opcode.op = BUSOP_ACQUIRE_ADDRESS;
+        header->daddr = 0;
+        header->saddr = 0;
+
+        bus_write(req, req_size);
 }
 
 void mainboard::bus_write(const char* data, size_t len)
@@ -129,9 +173,9 @@ void mainboard::bus_write(const char* data, size_t len)
 }
 void mainboard::process_packet(const char* data)
 {
-        struct bus_opc* opc = (struct bus_opc*)data;
+        struct bus_hdr* hdr = (struct bus_hdr*)data;
 
-        switch(opc->op) {
+        switch(hdr->opcode.op) {
                 case BUSOP_HELLO:
                         std::cout << "mainboard::process_packet(): Hello packet" << std::endl;
                         process_hello(data);
@@ -160,26 +204,30 @@ int mainboard::set_thresholds(const event_thresholds& thresh)
 
 int mainboard::set_throttle(bool fast, int left, int right)
 {
-        struct bus_set_motor_driver front, back;
-        back.hdr.opcode.op = front.hdr.opcode.op = BUSOP_EVENT;
-        back.hdr.saddr = front.hdr.saddr = my_addr;
-        front.hdr.daddr = motor_front_addr;
-        back.hdr.daddr = motor_back_addr;
-        back.event.timestamp = front.event.timestamp = 0;
-        back.event.type = front.event.type = EV_SET_THROTTLES;
+        size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
+        char buffer[psize];
+        bus_hdr* bhdr = get_bus_header(buffer);
+        bus_event_hdr* evhdr = get_bus_event_header(buffer);
+        bus_set_motor_driver* drv = get_bus_set_motor_driver(buffer);
 
-        front.motors[MOTOR_LEFT] = static_cast<throttle_t>(
+        bhdr->opcode.op = BUSOP_EVENT;
+        bhdr->saddr = htole16(my_addr);
+        bhdr->daddr = htole16(motor_front_addr);
+
+        evhdr->timestamp = 0;
+        evhdr->type = htole16(EV_SET_THROTTLES);
+
+        drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_FRONT_LEFT] * left);
-        front.motors[MOTOR_RIGHT] = static_cast<throttle_t>(
+        drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_FRONT_RIGHT] * right);
 
-        back.motors[MOTOR_LEFT] = static_cast<throttle_t>(
+        drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_LEFT] * left);
-        back.motors[MOTOR_RIGHT] = static_cast<throttle_t>(
+        drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_RIGHT] * right);
 
-        bus_write((char*)&front, sizeof(front));
-        bus_write((char*)&back, sizeof(back));
+        bus_write(buffer, psize);
 
         return 0;
 }
