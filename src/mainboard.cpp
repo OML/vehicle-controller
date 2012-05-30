@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <string.h>
 
 #include "bus/busprot.h"
 
@@ -43,6 +44,9 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         motor_front_addr = 1;
         motor_back_addr = 2;
+
+        read_buffer = NULL;
+        read_buffer_length = 0;
 
         std::cout << "Mainboard fd: " << fd << std::endl;
 }
@@ -71,26 +75,45 @@ void mainboard::open_fifo()
 
 void mainboard::data_available()
 {
-        uint16_t len;
-        read((char*)&len, sizeof(uint16_t));
+        uint16_t len = bytes_available();
 
-        char buffer[len];
-        read((char*)&buffer, len - sizeof(uint16_t));
+        char tmp[len];
+        read(tmp, len);
 
-        process_packet(buffer);
+        if(read_buffer == NULL) {
+                read_buffer = new char[len];
+                memcpy(read_buffer, tmp, len);
+                read_buffer_length = len;
+        } else {
+                char* tmp_buffer = new char[len + read_buffer_length];
+                memcpy(tmp_buffer, read_buffer, read_buffer_length);
+                memcpy(tmp_buffer + read_buffer_length, tmp, len);
+                free(read_buffer);
+                read_buffer = tmp_buffer;
+        }
+
+        if(read_buffer_length >= 2) {
+                len = *reinterpret_cast<uint16_t*>(read_buffer);
+                if(read_buffer_length >= len) {
+                        process_packet(read_buffer);
+                        free(read_buffer);
+                        read_buffer = NULL;
+                        read_buffer_length = 0;
+                }
+        }
 }
 
 void mainboard::process_hello(const char* data)
 {
         struct bus_hello* pack = (struct bus_hello*)data;
-        my_addr = pack->hdr.daddr;
-        host_addr = pack->hdr.saddr;
+        my_addr = le16toh(pack->hdr.daddr);
+        host_addr = le16toh(pack->hdr.saddr);
 
         struct bus_hello_reply repl;
-        repl.hdr.saddr = my_addr;
-        repl.hdr.daddr = host_addr;
-        repl.hdr.opcode.op = BUSOP_HELLO;
-        repl.devtype = DT_IPC;
+        repl.hdr.saddr = htole16(my_addr);
+        repl.hdr.daddr = htole16(host_addr);
+        repl.hdr.opcode.op = htole16(BUSOP_HELLO);
+        repl.devtype = htole16(DT_IPC);
 
         bus_write((char*)&repl, sizeof(repl));
 }
@@ -110,6 +133,7 @@ void mainboard::process_packet(const char* data)
 
         switch(opc->op) {
                 case BUSOP_HELLO:
+                        std::cout << "mainboard::process_packet(): Hello packet" << std::endl;
                         process_hello(data);
                         break;
         }

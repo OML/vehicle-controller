@@ -76,6 +76,9 @@ class mainboard: public ufile
 
                 bus_addr_t              motor_front_addr;
                 bus_addr_t              motor_back_addr;
+
+                char*                   read_buffer;
+                size_t                  read_buffer_length;
 };
 
 #endif /* mainboard.h */
