@@ -24,6 +24,7 @@ enum
         BUSOP_HELLO = 0,
         BUSOP_EVENT,
         BUSOP_DONE,
+        BUSOP_ACQUIRE_ADDRESS,
 };
 
 
