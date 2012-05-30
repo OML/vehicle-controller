@@ -78,6 +78,7 @@ class mainboard: public ufile
                 bus_addr_t              motor_front_addr;
                 bus_addr_t              motor_back_addr;
 
+		void read_buffer_append(const char* data, size_t len);
                 char*                   read_buffer;
                 size_t                  read_buffer_length;
 };

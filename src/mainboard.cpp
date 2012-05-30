@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -70,10 +71,26 @@ void mainboard::open_fifo()
 
         ioctl(fd, TCSETS, &opts);
 
-        acquire_address();
-
         set_fd(fd);
+
+	acquire_address();
 }
+
+void mainboard::read_buffer_append(const char* data, size_t len)
+{
+	if(read_buffer == NULL) {
+		read_buffer = new char[len];
+		memcpy(read_buffer, data, len);
+	} else {
+		char* tmp = read_buffer;
+		read_buffer =  new char[len + read_buffer_length];
+		memcpy(read_buffer, tmp, read_buffer_length);
+		memcpy(read_buffer + read_buffer_length, data, len);
+		read_buffer_length += len;
+		delete [] tmp;
+	}
+}
+
 
 void mainboard::data_available()
 {
@@ -82,23 +99,14 @@ void mainboard::data_available()
         char tmp[len];
         read(tmp, len);
 
-        if(read_buffer == NULL) {
-                read_buffer = new char[len];
-                memcpy(read_buffer, tmp, len);
-                read_buffer_length = len;
-        } else {
-                char* tmp_buffer = new char[len + read_buffer_length];
-                memcpy(tmp_buffer, read_buffer, read_buffer_length);
-                memcpy(tmp_buffer + read_buffer_length, tmp, len);
-                free(read_buffer);
-                read_buffer = tmp_buffer;
-        }
+        read_buffer_append(tmp, len);
 
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
                 if(read_buffer_length >= len) {
-                        process_packet(read_buffer);
-                        free(read_buffer + sizeof(uint16_t));
+			std::cout << "Process data" << std::endl;
+                        process_packet(read_buffer + sizeof(uint16_t));
+                        delete [] read_buffer;
                         read_buffer = NULL;
                         read_buffer_length = 0;
                 }
