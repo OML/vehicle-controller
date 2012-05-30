@@ -98,7 +98,7 @@ void mainboard::process_hello(const char* data)
 void mainboard::bus_write(const char* data, size_t len)
 {
         struct bus_opc ok;
-        uint16_t size = htole16(len);
+        uint16_t size = htole16(len) + sizeof(uint16_t);
         write((char*)&size, sizeof(uint16_t));
         write(data, len);
 
