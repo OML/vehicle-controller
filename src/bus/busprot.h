@@ -49,13 +49,11 @@ struct bus_hdr
 
 struct bus_hello
 {
-        struct bus_hdr hdr;
 } __attribute__((packed));
 
 
 struct bus_hello_reply
 {
-        struct bus_hdr hdr;
         bus_devtype_t devtype;
 } __attribute__((packed));
 
@@ -67,16 +65,12 @@ struct bus_event_hdr
 
 struct bus_set_thresholds
 {
-        struct bus_hdr hdr;
-        struct bus_event_hdr event;
         struct event_thresholds thresholds;
 } __attribute__((packed));
 
 
 struct bus_set_motor_driver
 {
-        struct bus_hdr hdr;
-        struct bus_event_hdr event;
         throttle_t motors[2];
 } __attribute__((packed));
 
