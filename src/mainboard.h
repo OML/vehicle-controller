@@ -34,6 +34,14 @@
 #define NMOTORS 4
 
 
+#define MOTOR_FRONT_LEFT 0
+#define MOTOR_FRONT_RIGHT 1
+#define MOTOR_BACK_RIGHT 2
+#define MOTOR_BACK_LEFT 3
+
+#define MOTOR_LEFT 0
+#define MOTOR_RIGHT 1
+
 
 class mainboard: public ufile
 {
@@ -44,7 +52,7 @@ class mainboard: public ufile
                 static mainboard*       instance;
 
                 int                     calibrate(uint16_t speeds[NMOTORS]);
-                int                     set_tresholds(const event_tresholds& tresh);
+                int                     set_thresholds(const event_thresholds& thresh);
                 int                     set_throttle(bool fast, int left, int right);
                 int                     halt();
         private:
@@ -65,6 +73,9 @@ class mainboard: public ufile
 
                 bus_addr_t              my_addr;
                 bus_addr_t              host_addr;
+
+                bus_addr_t              motor_front_addr;
+                bus_addr_t              motor_back_addr;
 };
 
 #endif /* mainboard.h */

@@ -41,6 +41,9 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         open_fifo();
 
+        motor_front_addr = 1;
+        motor_back_addr = 2;
+
         std::cout << "Mainboard fd: " << fd << std::endl;
 }
 
@@ -94,9 +97,12 @@ void mainboard::process_hello(const char* data)
 
 void mainboard::bus_write(const char* data, size_t len)
 {
+        struct bus_opc ok;
         uint16_t size = htole16(len);
         write((char*)&size, sizeof(uint16_t));
         write(data, len);
+
+        read((char*)&ok, sizeof(ok));
 }
 void mainboard::process_packet(const char* data)
 {
@@ -121,18 +127,37 @@ int mainboard::calibrate(uint16_t speeds[NMOTORS])
         return 0;
 }
 
-int mainboard::set_tresholds(const event_tresholds& tresh)
+int mainboard::set_thresholds(const event_thresholds& thresh)
 {
-#warning "mainboard::set_tresholds not implemented yet."
-        std::cout << "mainboard::set_tresholds not implemented yet." << std::endl;
+#warning "mainboard::set_thresholds not implemented yet."
+        std::cout << "mainboard::set_thresholds not implemented yet." << std::endl;
         return -1;
 }
 
 int mainboard::set_throttle(bool fast, int left, int right)
 {
-#warning "mainboard::set_throttle not implemented yet."
-        std::cout << "mainboard::set_halt not implemented yet." << std::endl;
-        return -1;
+        struct bus_set_motor_driver front, back;
+        back.hdr.opcode.op = front.hdr.opcode.op = BUSOP_EVENT;
+        back.hdr.saddr = front.hdr.saddr = my_addr;
+        front.hdr.daddr = motor_front_addr;
+        back.hdr.daddr = motor_back_addr;
+        back.event.timestamp = front.event.timestamp = 0;
+        back.event.type = front.event.type = EV_SET_THROTTLES;
+
+        front.motors[MOTOR_LEFT] = static_cast<throttle_t>(
+                        motor_multiplier[MOTOR_FRONT_LEFT] * left);
+        front.motors[MOTOR_RIGHT] = static_cast<throttle_t>(
+                        motor_multiplier[MOTOR_FRONT_RIGHT] * right);
+
+        back.motors[MOTOR_LEFT] = static_cast<throttle_t>(
+                        motor_multiplier[MOTOR_BACK_LEFT] * left);
+        back.motors[MOTOR_RIGHT] = static_cast<throttle_t>(
+                        motor_multiplier[MOTOR_BACK_RIGHT] * right);
+
+        bus_write((char*)&front, sizeof(front));
+        bus_write((char*)&back, sizeof(back));
+
+        return 0;
 }
 
 

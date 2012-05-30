@@ -51,13 +51,13 @@ struct device_data
 } __attribute__((packed));
 
 
-struct event_tresholds
+struct event_thresholds
 {
-        throttle_t throttle_treshold;
-        voltage_t voltage_treshold;
-        current_t current_treshold;
-        temperature_t temperature_treshold;
-        gyro_t gyro_treshold;
+        throttle_t throttle_threshold;
+        voltage_t voltage_threshold;
+        current_t current_threshold;
+        temperature_t temperature_threshold;
+        gyro_t gyro_threshold;
 } __attribute__((packed));
 
 

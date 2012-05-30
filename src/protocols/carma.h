@@ -80,7 +80,7 @@ struct carma_report_request
 {
         carma_opcode opcode;
         uint8_t padding;
-        event_tresholds tresholds;
+        event_thresholds thresholds;
 } __attribute__((packed));
 
 struct carma_keepalive_request

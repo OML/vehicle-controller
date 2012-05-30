@@ -27,7 +27,7 @@ BINDIR=bin
 OBJDIR=obj
 SRCDIR=src
 
-INCLUDES=-I$(INCDIR) -Isrc/protocols -Isrc/ -Isrc/gptk/
+INCLUDES=-Isrc/protocols -Isrc/ -Isrc/gptk/
 OUTPUT=$(BINDIR)/server
 GPTK_SOURCES=\
 		gptk/event_loop.cpp \
