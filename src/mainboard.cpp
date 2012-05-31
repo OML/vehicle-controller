@@ -49,6 +49,9 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
         read_buffer = NULL;
         read_buffer_length = 0;
 
+        my_addr = -1;
+        host_addr = -1;
+
         std::cout << "Mainboard fd: " << fd << std::endl;
 }
 
@@ -102,15 +105,15 @@ void mainboard::data_available()
 
         char tmp[len];
         read(tmp, len);
-	if(len == 1 && tmp[0] == '\0') // spurious disconnect byte 
+	if(len == 1 && tmp[0] == '\0') { // spurious disconnect byte
+		my_addr = host_addr = -1;
+		delete [] read_buffer;
+		read_buffer = NULL;
+		read_buffer_length = 0;
 		return;
+	}
 
         read_buffer_append(tmp, len);
-	std::cout << "Read data: "  << std::endl;
-	for(int i = 0; i < len; i++)
-		std::cout << "0x" << std::hex << (unsigned int)tmp[i] << " ";
-	std::cout << std::endl;
-
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
                 
@@ -152,6 +155,13 @@ void mainboard::process_hello(const char* data)
 {
         bus_hdr* header = get_bus_header(const_cast<char*>(data));
 
+        std::cout << "Processing HELLO packet" << std::endl;
+
+        if(le16toh(header->daddr) > my_addr) {
+                std::cout << "\tIgnoring" << std::endl;
+                return;
+        }
+
         my_addr = le16toh(header->daddr);
         host_addr = le16toh(header->saddr);
 
@@ -170,7 +180,6 @@ void mainboard::process_hello(const char* data)
 
 void mainboard::acquire_address()
 {
-	std::cout << "Acquiring address.." << std::endl;
         size_t req_size = (size_t)get_bus_header(NULL) + sizeof(bus_hdr);
         char req[req_size];
         bus_hdr* header = get_bus_header(req);
@@ -183,17 +192,11 @@ void mainboard::acquire_address()
 
 void mainboard::bus_write(const char* data, size_t len)
 {
-        struct bus_opc ok;
         uint16_t size = htole16(len + sizeof(uint16_t));
 	char buffer[len + sizeof(uint16_t)];
 	memcpy(buffer, &size, sizeof(uint16_t));
 	memcpy(buffer + sizeof(uint16_t), data, len);
 	write(buffer, len + sizeof(uint16_t));
-
-//	std::cout << "Writing packet of length "<< len + sizeof(uint16_t) << std::endl;
-  //      write((char*)&size, htole16(sizeof(uint16_t)));
-//	std::cout << "Writing length value 0x" << std::hex  << (unsigned int)htole16(size) << std::endl;
-  //      write(data, len);
 }
 
 void mainboard::process_packet(const char* data)
@@ -202,7 +205,6 @@ void mainboard::process_packet(const char* data)
 
         switch(hdr->opcode.op) {
                 case BUSOP_HELLO:
-                        std::cout << "mainboard::process_packet(): Hello packet" << std::endl;
                         process_hello(data);
                         break;
         }
