@@ -51,8 +51,6 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         my_addr = -1;
         host_addr = -1;
-
-        std::cout << "Mainboard fd: " << fd << std::endl;
 }
 
 mainboard::~mainboard()
