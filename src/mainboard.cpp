@@ -43,8 +43,8 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         open_fifo();
 
-        motor_front_addr = 1;
-        motor_back_addr = 2;
+        motor_front_addr = 4;
+        motor_back_addr = 5;
 
         read_buffer = NULL;
         read_buffer_length = 0;
@@ -246,12 +246,14 @@ int mainboard::set_throttle(bool fast, int left, int right)
                         motor_multiplier[MOTOR_FRONT_LEFT] * left);
         drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_FRONT_RIGHT] * right);
+        bus_write(buffer, psize);
 
+
+        bhdr->daddr = htole16(motor_back_addr);
         drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_LEFT] * left);
         drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_RIGHT] * right);
-
         bus_write(buffer, psize);
 
         return 0;
