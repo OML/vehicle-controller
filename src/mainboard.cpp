@@ -59,15 +59,18 @@ mainboard::~mainboard()
 
 void mainboard::open_fifo()
 {
-        int fd = ::open(sfile.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+        int fd = ::open(sfile.c_str(), O_RDWR | O_NOCTTY);
         struct termios opts;
         ioctl(fd, TCGETS, &opts);
-        opts.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                                | INLCR | IGNCR | ICRNL | IXON);
-        opts.c_oflag &= ~OPOST;
-        opts.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-        opts.c_cflag &= ~(CSIZE | PARENB);
-        opts.c_cflag |= CS8 | CREAD | B19200;
+
+        opts.c_iflag &= ~(IGNBRK | BRKINT | ICRNL
+		| INLCR | PARMRK | INPCK | ISTRIP | IXON);
+	opts.c_oflag = 0;
+	opts.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+	opts.c_cflag &= ~(CSIZE | PARENB);
+	opts.c_cflag |= CS8 | CREAD | B19200;
+	opts.c_cc[VMIN] = 1;
+	opts.c_cc[VTIME] = 0;
 
         ioctl(fd, TCSETS, &opts);
 
@@ -81,6 +84,7 @@ void mainboard::read_buffer_append(const char* data, size_t len)
 	if(read_buffer == NULL) {
 		read_buffer = new char[len];
 		memcpy(read_buffer, data, len);
+		read_buffer_length = len;
 	} else {
 		char* tmp = read_buffer;
 		read_buffer =  new char[len + read_buffer_length];
@@ -98,13 +102,19 @@ void mainboard::data_available()
 
         char tmp[len];
         read(tmp, len);
+	if(len == 1 && tmp[0] == '\0') // spurious disconnect byte 
+		return;
 
         read_buffer_append(tmp, len);
+	std::cout << "Read data: "  << std::endl;
+	for(int i = 0; i < len; i++)
+		std::cout << "0x" << std::hex << (unsigned int)tmp[i] << " ";
+	std::cout << std::endl;
 
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
-                if(read_buffer_length >= len) {
-			std::cout << "Process data" << std::endl;
+                
+		if(read_buffer_length >= len) {
                         process_packet(read_buffer + sizeof(uint16_t));
                         delete [] read_buffer;
                         read_buffer = NULL;
@@ -160,6 +170,7 @@ void mainboard::process_hello(const char* data)
 
 void mainboard::acquire_address()
 {
+	std::cout << "Acquiring address.." << std::endl;
         size_t req_size = (size_t)get_bus_header(NULL) + sizeof(bus_hdr);
         char req[req_size];
         bus_hdr* header = get_bus_header(req);
@@ -173,12 +184,18 @@ void mainboard::acquire_address()
 void mainboard::bus_write(const char* data, size_t len)
 {
         struct bus_opc ok;
-        uint16_t size = htole16(len) + sizeof(uint16_t);
-        write((char*)&size, sizeof(uint16_t));
-        write(data, len);
+        uint16_t size = htole16(len + sizeof(uint16_t));
+	char buffer[len + sizeof(uint16_t)];
+	memcpy(buffer, &size, sizeof(uint16_t));
+	memcpy(buffer + sizeof(uint16_t), data, len);
+	write(buffer, len + sizeof(uint16_t));
 
-        read((char*)&ok, sizeof(ok));
+//	std::cout << "Writing packet of length "<< len + sizeof(uint16_t) << std::endl;
+  //      write((char*)&size, htole16(sizeof(uint16_t)));
+//	std::cout << "Writing length value 0x" << std::hex  << (unsigned int)htole16(size) << std::endl;
+  //      write(data, len);
 }
+
 void mainboard::process_packet(const char* data)
 {
         struct bus_hdr* hdr = (struct bus_hdr*)data;
