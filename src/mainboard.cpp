@@ -28,7 +28,7 @@
 #include <termios.h>
 #include <string.h>
 
-#include "bus/busprot.h"
+#include "bus/bus_types.h"
 
 mainboard* mainboard::instance = NULL;
 
@@ -43,7 +43,7 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         open_fifo();
 
-        motor_front_addr = 4;
+        motor_front_addr = 3;
         motor_back_addr = 5;
 
         read_buffer = NULL;
@@ -103,7 +103,8 @@ void mainboard::data_available()
 
         char tmp[len];
         read(tmp, len);
-	if(len == 1 && tmp[0] == '\0') { // spurious disconnect byte
+	if(len == 1 && tmp[0] == '\0' && read_buffer_length == 0) { // spurious disconnect byte
+	        std::cout << "Mainboard disconnected" << std::endl;
 		my_addr = host_addr = -1;
 		delete [] read_buffer;
 		read_buffer = NULL;
@@ -114,9 +115,8 @@ void mainboard::data_available()
         read_buffer_append(tmp, len);
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
-                
 		if(read_buffer_length >= len) {
-                        process_packet(read_buffer + sizeof(uint16_t));
+                        process_packet(read_buffer);
                         delete [] read_buffer;
                         read_buffer = NULL;
                         read_buffer_length = 0;
@@ -124,7 +124,7 @@ void mainboard::data_available()
         }
 }
 
-static struct bus_hdr* get_bus_header(char* data)
+static struct bus_hdr* get_bus_header(const char* data)
 {
         return (bus_hdr*)data;
 }
@@ -174,6 +174,9 @@ void mainboard::process_hello(const char* data)
         reply->devtype = htole16(DT_IPC);
 
         bus_write(response_buffer, resp_len);
+
+	sleep(2);
+	set_throttle(1, 42, 42);
 }
 
 void mainboard::acquire_address()
@@ -190,11 +193,8 @@ void mainboard::acquire_address()
 
 void mainboard::bus_write(const char* data, size_t len)
 {
-        uint16_t size = htole16(len + sizeof(uint16_t));
-	char buffer[len + sizeof(uint16_t)];
-	memcpy(buffer, &size, sizeof(uint16_t));
-	memcpy(buffer + sizeof(uint16_t), data, len);
-	write(buffer, len + sizeof(uint16_t));
+        get_bus_header(data)->len = len;
+	write(data, len);
 }
 
 void mainboard::process_packet(const char* data)
@@ -229,6 +229,11 @@ int mainboard::set_thresholds(const event_thresholds& thresh)
 
 int mainboard::set_throttle(bool fast, int left, int right)
 {
+	uint16_t motors[4] = {100, 100, 100, 100};
+	calibrate((uint16_t*)&motors);
+
+	std::cout << "Left: "  << left << ", Right: " << right << std::endl;
+
         size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
         char buffer[psize];
         bus_hdr* bhdr = get_bus_header(buffer);
@@ -242,20 +247,20 @@ int mainboard::set_throttle(bool fast, int left, int right)
         evhdr->timestamp = 0;
         evhdr->type = htole16(EV_SET_THROTTLES);
 
-        drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
-                        motor_multiplier[MOTOR_FRONT_LEFT] * left);
-        drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
-                        motor_multiplier[MOTOR_FRONT_RIGHT] * right);
+        drv->motors[MOTOR_LEFT] = left*10;//static_cast<throttle_t>(
+                        //motor_multiplier[MOTOR_FRONT_LEFT] * left);
+        drv->motors[MOTOR_RIGHT] = right*10;//static_cast<throttle_t>(
+                        //motor_multiplier[MOTOR_FRONT_RIGHT] * right);
         bus_write(buffer, psize);
 
-
+/*
         bhdr->daddr = htole16(motor_back_addr);
         drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_LEFT] * left);
         drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
                         motor_multiplier[MOTOR_BACK_RIGHT] * right);
         bus_write(buffer, psize);
-
+*/
         return 0;
 }
 
