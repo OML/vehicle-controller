@@ -24,7 +24,7 @@
 #include <ufile.h>
 #include <config_file.h>
 
-#include "bus/busprot.h"
+#include "bus/bus_types.h"
 
 #include "protocols/general.h"
 

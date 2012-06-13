@@ -28,7 +28,7 @@
 #include <termios.h>
 #include <string.h>
 
-#include "bus/busprot.h"
+#include "bus/bus_types.h"
 
 mainboard* mainboard::instance = NULL;
 
@@ -103,7 +103,8 @@ void mainboard::data_available()
 
         char tmp[len];
         read(tmp, len);
-	if(len == 1 && tmp[0] == '\0') { // spurious disconnect byte
+	if(len == 1 && tmp[0] == '\0' && read_buffer_length == 0) { // spurious disconnect byte
+	        std::cout << "Mainboard disconnected" << std::endl;
 		my_addr = host_addr = -1;
 		delete [] read_buffer;
 		read_buffer = NULL;
@@ -114,9 +115,8 @@ void mainboard::data_available()
         read_buffer_append(tmp, len);
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
-                
 		if(read_buffer_length >= len) {
-                        process_packet(read_buffer + sizeof(uint16_t));
+                        process_packet(read_buffer);
                         delete [] read_buffer;
                         read_buffer = NULL;
                         read_buffer_length = 0;

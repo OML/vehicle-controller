@@ -180,7 +180,7 @@ err:
 
 int carma::start_reading()
 {
-        std::cout << "System buffer has " << cl->bytes_available() << " bytes available." << std::endl;
+//        std::cout << "System buffer has " << cl->bytes_available() << " bytes available." << std::endl;
         carma_opcode opcode;
         if(cl->peek((char*)&opcode, sizeof(carma_opcode)) == -1) {
                 std::cout << "System error - Unable to peek" << std::endl;
@@ -189,17 +189,17 @@ int carma::start_reading()
 
         switch(opcode.op) {
                 case COP_SYNC:
-                        std::cout << "Read sync packet" << std::endl;
+//                        std::cout << "Read sync packet" << std::endl;
                         if(read_sync() < 0)
                                 return -1;
                         break;
                 case COP_REPORT:
-                        std::cout << "Read report packet" << std::endl;
+//                        std::cout << "Read report packet" << std::endl;
                         if(read_report() < 0)
                                 return -1;
                         break;
                 case COP_KEEPALIVE:
-                        std::cout << "Read keepalive packet" << std::endl;
+//                        std::cout << "Read keepalive packet" << std::endl;
                         if(read_keepalive() < 0)
                                 return -1;
                         break;
