@@ -205,6 +205,8 @@ void mainboard::process_packet(const char* data)
                 case BUSOP_HELLO:
                         process_hello(data);
                         break;
+                case BUSOP_DONE:
+                        break;
         }
 }
 
@@ -242,7 +244,8 @@ int mainboard::set_throttle(bool fast, int left, int right)
 
         bhdr->opcode.op = BUSOP_EVENT;
         bhdr->saddr = htole16(my_addr);
-        bhdr->daddr = htole16(motor_front_addr);
+        bhdr->daddr = htole16(0);
+        bhdr->dtype = htole16(DT_DUAL_MOTOR_FRONT);
 
         evhdr->timestamp = 0;
         evhdr->type = htole16(EV_SET_THROTTLES);
@@ -253,14 +256,19 @@ int mainboard::set_throttle(bool fast, int left, int right)
                         //motor_multiplier[MOTOR_FRONT_RIGHT] * right);
         bus_write(buffer, psize);
 
-/*
-        bhdr->daddr = htole16(motor_back_addr);
-        drv->motors[MOTOR_LEFT] = static_cast<throttle_t>(
-                        motor_multiplier[MOTOR_BACK_LEFT] * left);
-        drv->motors[MOTOR_RIGHT] = static_cast<throttle_t>(
-                        motor_multiplier[MOTOR_BACK_RIGHT] * right);
+
+
+
+
+        bhdr->dtype = htole16(DT_DUAL_MOTOR_BACK);
+        bhdr->daddr = htole16(0);
+
+        drv->motors[MOTOR_LEFT] = left*10;//static_cast<throttle_t>(
+                        //motor_multiplier[MOTOR_BACK_LEFT] * left);
+        drv->motors[MOTOR_RIGHT] = right*10;//static_cast<throttle_t>(
+                        //motor_multiplier[MOTOR_BACK_RIGHT] * right);
         bus_write(buffer, psize);
-*/
+
         return 0;
 }
 
