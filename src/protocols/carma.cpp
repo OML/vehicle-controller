@@ -92,15 +92,15 @@ int carma::read_sync()
                 return print_err_packet_size(size, sizeof(carma_sync_request));
 
 
-        if(pack.calibrate == 1) {
+        if(pack.calibrate == 0xFF) {
                 pack.motors[0] = le16toh(pack.motors[0]);
                 pack.motors[1] = le16toh(pack.motors[1]);
                 pack.motors[2] = le16toh(pack.motors[2]);
                 pack.motors[3] = le16toh(pack.motors[3]);
-                return calibrate(pack.motors);
-        } else {
-                MAINBOARD->set_throttle((pack.speed == 1), pack.left, pack.right);
-        }
+                calibrate(pack.motors);
+        } 
+        MAINBOARD->set_throttle((pack.speed == 1), pack.left, pack.right);
+       
         return 0;
 }
 
@@ -186,7 +186,6 @@ int carma::start_reading()
                 std::cout << "System error - Unable to peek" << std::endl;
                 return -1;
         }
-
         switch(opcode.op) {
                 case COP_SYNC:
 //                        std::cout << "Read sync packet" << std::endl;
