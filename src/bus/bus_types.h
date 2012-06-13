@@ -21,11 +21,14 @@ typedef uint32_t bus_timestamp_t;
 
 /* Device types */
 enum {
+        DT_NULL,
         DT_ROOT,
-        DT_MOTOR,
-        DT_DUAL_MOTOR,
-        DT_ACCU,
-        DT_IPC
+        DT_DUAL_MOTOR_FRONT,
+        DT_DUAL_MOTOR_BACK,
+        DT_ACCU_1,
+        DT_ACCU_2,
+        DT_IPC,
+        DT_IO,
 };
 
 /* Opcodes */
@@ -42,7 +45,8 @@ enum
 /* Events */
 enum
 {
-        EV_SET_THROTTLES
+        EV_SET_THROTTLES,
+        EV_SET_OUTPUTS
 };
 
 struct bus_opc
@@ -59,6 +63,7 @@ struct bus_hdr
         struct bus_opc opcode;
         bus_addr_t saddr;
         bus_addr_t daddr;
+        bus_devtype_t dtype;
 } __attribute__((packed));
 
 
@@ -94,5 +99,9 @@ struct bus_set_motor_driver
         throttle_t motors[2];
 } __attribute__((packed));
 
+struct bus_set_outputs
+{
+        uint8_t bits;
+} __attribute__((packed));
 
 #endif /* busprot_types.h */
