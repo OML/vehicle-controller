@@ -118,10 +118,14 @@ class carma: public protocol
                 int                     start_reading();
 
                 int                     calibrate(uint16_t motors[4]);
+
+                void motor_sensors_event(unsigned long int timestamp, motor_data ev[4]);
         private:
                 int                     read_report();
                 int                     read_sync();
                 int                     read_keepalive();
+
+                carma_sync_response     response;
 
 };
 

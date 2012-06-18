@@ -30,6 +30,8 @@
 
 #include "bus/bus_types.h"
 
+#include "client.h"
+
 mainboard* mainboard::instance = NULL;
 
 mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
@@ -53,6 +55,8 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
         host_addr = -1;
 
 	connected = false;
+
+	memset(motors, 0, sizeof(motors));
 }
 
 mainboard::~mainboard()
@@ -121,7 +125,7 @@ void mainboard::data_available()
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
 		std::cout << "Reading " << len << "/" << read_buffer_length << std::endl;
 		if(read_buffer_length >= len) {
-                        int rlen = process_packet(read_buffer);
+                        size_t rlen = process_packet(read_buffer);
 			char* tmp = read_buffer;
 			
 			if(read_buffer_length == rlen) {
@@ -193,6 +197,7 @@ void mainboard::process_hello(const char* data)
         header->saddr = htole16(my_addr);
         header->daddr = htole16(host_addr);
         header->opcode.op = htole16(BUSOP_HELLO);
+        header->stype = htole16(DT_IPC);
         reply->devtype = htole16(DT_IPC);
 
         bus_write(response_buffer, resp_len);
@@ -218,6 +223,8 @@ void mainboard::bus_write(const char* data, size_t len)
 
 int mainboard::process_packet(const char* data)
 {
+        char* data_nc = const_cast<char*>(data);
+
 	connected = true;
         struct bus_hdr* hdr = (struct bus_hdr*)data;
 
@@ -225,9 +232,22 @@ int mainboard::process_packet(const char* data)
                 case BUSOP_HELLO:
                         process_hello(data);
                         break;
-		case BUSOP_EVENT:
-			//std::cout << "event" << std::endl;
+		case BUSOP_EVENT: {
+		        unsigned int offset = 0;
+		        if(get_bus_header(data_nc)->stype == DT_DUAL_MOTOR_BACK)
+		                offset = 2;
+		        bus_motor_sensors_event* ev = get_bus_motor_sensors_event(data_nc);
+		        motors[offset+0].temperature = ev->sensors[0].temperature;
+		        motors[offset+0].voltage = ev->sensors[0].voltage;
+		        motors[offset+0].current = ev->sensors[0].current;
+
+		        motors[offset+1].temperature = ev->sensors[1].temperature;
+		        motors[offset+1].voltage = ev->sensors[1].voltage;
+		        motors[offset+1].current = ev->sensors[1].current;
+
+			client::incoming_motor_sensors_event(get_bus_event_header(data_nc)->timestamp, motors);
 			break;
+		}
                 case BUSOP_DONE:
                         break;
         }
@@ -268,6 +288,7 @@ int mainboard::set_throttle(bool fast, int left, int right)
         bhdr->saddr = htole16(my_addr);
         bhdr->daddr = htole16(0);
         bhdr->dtype = htole16(DT_DUAL_MOTOR_FRONT);
+        bhdr->stype = htole16(DT_IPC);
 
         evhdr->timestamp = 0;
         evhdr->type = htole16(EV_SET_THROTTLES);

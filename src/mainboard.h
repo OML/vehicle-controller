@@ -83,6 +83,8 @@ class mainboard: public ufile
                 size_t                  read_buffer_length;
 
 		bool			connected;
+
+		motor_data              motors[4];
 };
 
 #endif /* mainboard.h */

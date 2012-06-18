@@ -22,7 +22,10 @@
 
 #include <sys/types.h>
 
+#include <list>
+
 #include "protocols/protocol.h"
+#include "protocols/general.h"
 
 #include "ufile.h"
 
@@ -39,6 +42,8 @@ class client: public ufile
 		~client();
 
 		ssize_t peek(char* buffer, size_t size);
+
+		static void incoming_motor_sensors_event(unsigned long int timestamp, motor_data ev[4]);
 	friend class event_loop;
 	protected:
 
@@ -46,6 +51,8 @@ class client: public ufile
 
 	private:
 		void data_available();
+
+		static std::list<client*> clients;
 };
 
 

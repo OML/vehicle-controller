@@ -21,6 +21,8 @@
 
 #include <sys/types.h>
 
+#include "protocols/general.h"
+
 class client;
 
 class protocol
@@ -33,6 +35,8 @@ class protocol
                 virtual int disconnect() = 0;
                 virtual int start_reading() = 0;
 
+
+                virtual void motor_sensors_event(unsigned long int timestamp, motor_data ev[2]) = 0;
 	protected:
                 client* cl;
 };

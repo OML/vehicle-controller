@@ -65,6 +65,7 @@ struct bus_hdr
         bus_addr_t saddr;
         bus_addr_t daddr;
         bus_devtype_t dtype;
+        bus_devtype_t stype;
 } __attribute__((packed));
 
 

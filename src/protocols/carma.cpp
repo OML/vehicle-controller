@@ -209,3 +209,11 @@ int carma::start_reading()
 
         return 0;
 }
+
+void carma::motor_sensors_event(unsigned long int timestamp, motor_data ev[4])
+{
+        memcpy(response.motors, ev, sizeof(ev));
+        response.timestamp = timestamp;
+        response.opcode.op = COP_SYNC;
+        cl->write(reinterpret_cast<char*>(&response), sizeof(response));
+}

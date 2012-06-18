@@ -25,6 +25,8 @@
 
 #include <sys/socket.h>
 
+std::list<client*> client::clients;
+
 client::client(int fd, int prot): ufile(fd)
 {
         set_event_mask(UFILE_EVENT_READ);
@@ -37,10 +39,12 @@ client::client(int fd, int prot): ufile(fd)
                         proto = NULL;
                         std::cout << "Unsupported protocol (" << prot << ")" << std::endl;
         }
+        clients.push_back(this);
 }
 
 client::~client()
 {
+        clients.remove(this);
         if(proto)
                 delete proto;
 }
@@ -63,4 +67,13 @@ void client::data_available()
 ssize_t client::peek(char* buffer, size_t size)
 {
        return ::recv(fd, buffer, size, MSG_PEEK);
+}
+
+
+void client::incoming_motor_sensors_event(unsigned long int timestamp, motor_data ev[4])
+{
+        std::list<client*>::iterator it;
+        for(it = clients.begin(); it != clients.end(); it++) {
+                (*it)->proto->motor_sensors_event(timestamp, ev);
+        }
 }
