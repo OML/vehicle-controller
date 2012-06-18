@@ -46,7 +46,8 @@ enum
 enum
 {
         EV_SET_THROTTLES,
-        EV_SET_OUTPUTS
+        EV_SET_OUTPUTS,
+        EV_MOTOR_SENSORS,
 };
 
 struct bus_opc
@@ -102,6 +103,18 @@ struct bus_set_motor_driver
 struct bus_set_outputs
 {
         uint8_t bits;
+} __attribute__((packed));
+
+struct bus_motor_sensors
+{
+        voltage_t voltage;
+        current_t current;
+        temperature_t temperature;
+} __attribute__((packed));
+
+struct bus_motor_sensors_event
+{
+        struct bus_motor_sensors sensors[2];
 } __attribute__((packed));
 
 #endif /* busprot_types.h */

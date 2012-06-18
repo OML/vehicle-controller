@@ -57,7 +57,7 @@ class mainboard: public ufile
                 int                     halt();
         private:
                 void                    data_available();
-                void                    process_packet(const char* data);
+                int                     process_packet(const char* data);
                 void                    process_hello(const char* data);
 
                 void                    acquire_address();
@@ -81,6 +81,8 @@ class mainboard: public ufile
 		void read_buffer_append(const char* data, size_t len);
                 char*                   read_buffer;
                 size_t                  read_buffer_length;
+
+		bool			connected;
 };
 
 #endif /* mainboard.h */

@@ -51,6 +51,8 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
         my_addr = -1;
         host_addr = -1;
+
+	connected = false;
 }
 
 mainboard::~mainboard()
@@ -109,17 +111,30 @@ void mainboard::data_available()
 		delete [] read_buffer;
 		read_buffer = NULL;
 		read_buffer_length = 0;
+
+		connected = false;
 		return;
 	}
 
         read_buffer_append(tmp, len);
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
+		std::cout << "Reading " << len << "/" << read_buffer_length << std::endl;
 		if(read_buffer_length >= len) {
-                        process_packet(read_buffer);
-                        delete [] read_buffer;
-                        read_buffer = NULL;
-                        read_buffer_length = 0;
+                        int rlen = process_packet(read_buffer);
+			char* tmp = read_buffer;
+			
+			if(read_buffer_length == rlen) {
+				delete[] read_buffer;
+				read_buffer = NULL;
+				read_buffer_length = 0;
+			} else {
+				int new_length = read_buffer_length - rlen;
+				read_buffer = new char[new_length];
+				memcpy(read_buffer, tmp + rlen, new_length);
+				read_buffer_length = new_length;
+				delete [] tmp;
+			}
                 }
         }
 }
@@ -149,16 +164,23 @@ static struct bus_set_motor_driver* get_bus_set_motor_driver(char* data)
         return (bus_set_motor_driver*)((char*)get_bus_event_header(data) + sizeof(bus_event_hdr));
 }
 
+static struct bus_motor_sensors_event* get_bus_motor_sensors_event(char* data)
+{
+	return (bus_motor_sensors_event*)((char*)get_bus_event_header(data) + sizeof(bus_event_hdr));
+}
+
 void mainboard::process_hello(const char* data)
 {
         bus_hdr* header = get_bus_header(const_cast<char*>(data));
 
-        std::cout << "Processing HELLO packet" << std::endl;
+        //std::cout << "Processing HELLO packet" << std::endl;
 
         if(le16toh(header->daddr) > my_addr) {
-                std::cout << "\tIgnoring" << std::endl;
+           //     std::cout << "\tIgnoring" << std::endl;
                 return;
         }
+
+	connected = true;
 
         my_addr = le16toh(header->daddr);
         host_addr = le16toh(header->saddr);
@@ -174,9 +196,6 @@ void mainboard::process_hello(const char* data)
         reply->devtype = htole16(DT_IPC);
 
         bus_write(response_buffer, resp_len);
-
-	sleep(2);
-	set_throttle(1, 42, 42);
 }
 
 void mainboard::acquire_address()
@@ -197,17 +216,22 @@ void mainboard::bus_write(const char* data, size_t len)
 	write(data, len);
 }
 
-void mainboard::process_packet(const char* data)
+int mainboard::process_packet(const char* data)
 {
+	connected = true;
         struct bus_hdr* hdr = (struct bus_hdr*)data;
 
         switch(hdr->opcode.op) {
                 case BUSOP_HELLO:
                         process_hello(data);
                         break;
+		case BUSOP_EVENT:
+			//std::cout << "event" << std::endl;
+			break;
                 case BUSOP_DONE:
                         break;
         }
+	return hdr->len;
 }
 
 int mainboard::calibrate(uint16_t speeds[NMOTORS])
@@ -234,8 +258,6 @@ int mainboard::set_throttle(bool fast, int left, int right)
 	uint16_t motors[4] = {100, 100, 100, 100};
 	calibrate((uint16_t*)&motors);
 
-	std::cout << "Left: "  << left << ", Right: " << right << std::endl;
-
         size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
         char buffer[psize];
         bus_hdr* bhdr = get_bus_header(buffer);
@@ -250,22 +272,21 @@ int mainboard::set_throttle(bool fast, int left, int right)
         evhdr->timestamp = 0;
         evhdr->type = htole16(EV_SET_THROTTLES);
 
-        drv->motors[MOTOR_LEFT] = left*10;//static_cast<throttle_t>(
+        drv->motors[MOTOR_LEFT] = htole16(left*10);//static_cast<throttle_t>(
                         //motor_multiplier[MOTOR_FRONT_LEFT] * left);
-        drv->motors[MOTOR_RIGHT] = right*10;//static_cast<throttle_t>(
+        drv->motors[MOTOR_RIGHT] = htole16(right*10);//static_cast<throttle_t>(
                         //motor_multiplier[MOTOR_FRONT_RIGHT] * right);
         bus_write(buffer, psize);
 
 
-
-
+	//sleep(1);
 
         bhdr->dtype = htole16(DT_DUAL_MOTOR_BACK);
         bhdr->daddr = htole16(0);
 
-        drv->motors[MOTOR_LEFT] = left*10;//static_cast<throttle_t>(
+        drv->motors[MOTOR_LEFT] = htole16(left*10);//static_cast<throttle_t>(
                         //motor_multiplier[MOTOR_BACK_LEFT] * left);
-        drv->motors[MOTOR_RIGHT] = right*10;//static_cast<throttle_t>(
+        drv->motors[MOTOR_RIGHT] = htole16(right*10);//static_cast<throttle_t>(
                         //motor_multiplier[MOTOR_BACK_RIGHT] * right);
         bus_write(buffer, psize);
 
