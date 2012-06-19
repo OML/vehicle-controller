@@ -84,7 +84,7 @@ class mainboard: public ufile
 
 		bool			connected;
 
-		motor_data              motors[4];
+		motor_data              motors_buffer[4];
 };
 
 #endif /* mainboard.h */

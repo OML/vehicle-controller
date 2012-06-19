@@ -74,6 +74,7 @@ void client::incoming_motor_sensors_event(unsigned long int timestamp, motor_dat
 {
         std::list<client*>::iterator it;
         for(it = clients.begin(); it != clients.end(); it++) {
-                (*it)->proto->motor_sensors_event(timestamp, ev);
+		if((*it)->proto)
+	                (*it)->proto->motor_sensors_event(timestamp, ev);
         }
 }
