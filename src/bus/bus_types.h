@@ -118,4 +118,9 @@ struct bus_motor_sensors_event
         struct bus_motor_sensors sensors[2];
 } __attribute__((packed));
 
+struct bus_set_io_event
+{
+        uint8_t bits;
+} __attribute__((packed));
+
 #endif /* busprot_types.h */

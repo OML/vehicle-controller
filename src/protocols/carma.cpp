@@ -101,6 +101,7 @@ int carma::read_sync()
         } 
         MAINBOARD->set_throttle((pack.speed == 1), pack.left, pack.right);
        
+        //MAINBOARD->set_io_modulinator(pack.io_bits);
         return 0;
 }
 
