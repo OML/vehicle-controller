@@ -56,7 +56,7 @@ mainboard::mainboard(const std::string& sfile): ufile(), sfile(sfile)
 
 	connected = false;
 
-	memset(motors, 0, sizeof(motors));
+	memset(motors_buffer, 0, sizeof(motors_buffer));
 }
 
 mainboard::~mainboard()
@@ -123,7 +123,7 @@ void mainboard::data_available()
         read_buffer_append(tmp, len);
         if(read_buffer_length >= 2) {
                 len = *reinterpret_cast<uint16_t*>(read_buffer);
-		std::cout << "Reading " << len << "/" << read_buffer_length << std::endl;
+//		std::cout << "Reading " << len << "/" << read_buffer_length << std::endl;
 		if(read_buffer_length >= len) {
                         size_t rlen = process_packet(read_buffer);
 			char* tmp = read_buffer;
@@ -237,15 +237,19 @@ int mainboard::process_packet(const char* data)
 		        if(get_bus_header(data_nc)->stype == DT_DUAL_MOTOR_BACK)
 		                offset = 2;
 		        bus_motor_sensors_event* ev = get_bus_motor_sensors_event(data_nc);
-		        motors[offset+0].temperature = ev->sensors[0].temperature;
-		        motors[offset+0].voltage = ev->sensors[0].voltage;
-		        motors[offset+0].current = ev->sensors[0].current;
+		        motors_buffer[offset+0].temperature = ev->sensors[0].temperature;
+		        motors_buffer[offset+0].voltage = ev->sensors[0].voltage;
+		        motors_buffer[offset+0].current = ev->sensors[0].current;
 
-		        motors[offset+1].temperature = ev->sensors[1].temperature;
-		        motors[offset+1].voltage = ev->sensors[1].voltage;
-		        motors[offset+1].current = ev->sensors[1].current;
+		        motors_buffer[offset+1].temperature = ev->sensors[1].temperature;
+		        motors_buffer[offset+1].voltage = ev->sensors[1].voltage;
+		        motors_buffer[offset+1].current = ev->sensors[1].current;
 
-			client::incoming_motor_sensors_event(get_bus_event_header(data_nc)->timestamp, motors);
+			std::cout << "Recv: " << ev->sensors[0].voltage << std::endl;
+
+//			std::cout << "Set:  " << motors_buffer[0].voltage << std::endl;
+//			std::cout << "Rem:  " << motors_buffer[1].voltage << std::endl << motors[2].voltage << std::endl << motors[3].voltage << std::endl;
+			client::incoming_motor_sensors_event(get_bus_event_header(data_nc)->timestamp, motors_buffer);
 			break;
 		}
                 case BUSOP_DONE:
@@ -275,8 +279,8 @@ int mainboard::set_thresholds(const event_thresholds& thresh)
 
 int mainboard::set_throttle(bool fast, int left, int right)
 {
-	uint16_t motors[4] = {100, 100, 100, 100};
-	calibrate((uint16_t*)&motors);
+//	uint16_t motors[4] = {100, 100, 100, 100};
+//	calibrate((uint16_t*)&motors);
 
         size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
         char buffer[psize];
@@ -298,9 +302,6 @@ int mainboard::set_throttle(bool fast, int left, int right)
         drv->motors[MOTOR_RIGHT] = htole16(right*10);//static_cast<throttle_t>(
                         //motor_multiplier[MOTOR_FRONT_RIGHT] * right);
         bus_write(buffer, psize);
-
-
-	//sleep(1);
 
         bhdr->dtype = htole16(DT_DUAL_MOTOR_BACK);
         bhdr->daddr = htole16(0);

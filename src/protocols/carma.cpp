@@ -214,6 +214,7 @@ void carma::motor_sensors_event(unsigned long int timestamp, motor_data ev[4])
 {
         memcpy(response.motors, ev, sizeof(ev));
         response.timestamp = timestamp;
-        response.opcode.op = COP_SYNC;
+        response.opcode.op = COP_SYNC;	
+//	std::cout << ev[0].current << ", " << ev[0].voltage << ", " << ev[0].temperature << std::endl;
         cl->write(reinterpret_cast<char*>(&response), sizeof(response));
 }
