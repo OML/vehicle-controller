@@ -55,6 +55,8 @@ class mainboard: public ufile
                 int                     set_thresholds(const event_thresholds& thresh);
                 int                     set_throttle(bool fast, int left, int right);
                 int                     halt();
+
+                int                     set_digital_outputs(uint8_t bits);
         private:
                 void                    data_available();
                 int                     process_packet(const char* data);

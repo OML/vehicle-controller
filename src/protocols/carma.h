@@ -64,6 +64,7 @@ struct carma_sync_request
         uint8_t calibrate;
         uint16_t motors[4];
         uint8_t sound;
+        uint8_t io_bits;
 
 }__attribute__((packed));
 

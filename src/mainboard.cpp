@@ -173,6 +173,11 @@ static struct bus_motor_sensors_event* get_bus_motor_sensors_event(char* data)
 	return (bus_motor_sensors_event*)((char*)get_bus_event_header(data) + sizeof(bus_event_hdr));
 }
 
+static struct bus_set_digital_io_event* get_bus_set_digital_io_event(char* data)
+{
+        return (bus_set_digital_io_event*)((char*)get_bus_event_header(data) + sizeof(bus_event_hdr));
+}
+
 void mainboard::process_hello(const char* data)
 {
         bus_hdr* header = get_bus_header(const_cast<char*>(data));
@@ -312,6 +317,28 @@ int mainboard::set_throttle(bool fast, int left, int right)
                         //motor_multiplier[MOTOR_BACK_RIGHT] * right);
         bus_write(buffer, psize);
 
+        return 0;
+}
+
+int mainboard::set_digital_outputs(uint8_t bits)
+{
+        size_t buflen = (size_t)((char*)get_bus_set_digital_io_event(NULL)) + sizeof(struct bus_set_digital_io_event);
+        char buffer[buflen];
+        struct bus_set_digital_io_event* ev = get_bus_set_digital_io_event(buffer);
+        struct bus_event_hdr* evhdr = get_bus_event_header(buffer);
+        struct bus_hdr* bhdr = get_bus_header(buffer);
+
+        bhdr->stype = htole16(DT_IPC);
+        bhdr->saddr = htole16(my_addr);
+        bhdr->daddr = 0;
+        bhdr->dtype = htole16(DT_IO);
+
+        evhdr->timestamp = 0;
+        evhdr->type = htole16(EV_SET_OUTPUTS);
+
+        ev->bits = bits;
+
+        bus_write(buffer, buflen);
         return 0;
 }
 
