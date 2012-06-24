@@ -250,7 +250,7 @@ int mainboard::process_packet(const char* data)
 		        motors_buffer[offset+1].voltage = ev->sensors[1].voltage;
 		        motors_buffer[offset+1].current = ev->sensors[1].current;
 
-			std::cout << "Recv: " << ev->sensors[0].voltage << std::endl;
+			std::cout << "Recv: " << ev->sensors[0].voltage << ", " << ev->sensors[1].voltage << std::endl;
 
 //			std::cout << "Set:  " << motors_buffer[0].voltage << std::endl;
 //			std::cout << "Rem:  " << motors_buffer[1].voltage << std::endl << motors[2].voltage << std::endl << motors[3].voltage << std::endl;
@@ -286,7 +286,7 @@ int mainboard::set_throttle(bool fast, int left, int right)
 {
 //	uint16_t motors[4] = {100, 100, 100, 100};
 //	calibrate((uint16_t*)&motors);
-
+	
         size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
         char buffer[psize];
         bus_hdr* bhdr = get_bus_header(buffer);
@@ -322,6 +322,7 @@ int mainboard::set_throttle(bool fast, int left, int right)
 
 int mainboard::set_digital_outputs(uint8_t bits)
 {
+	//std::cout << "Set digital outputs " << std::hex << (int)bits << std::endl;
         size_t buflen = (size_t)((char*)get_bus_set_digital_io_event(NULL)) + sizeof(struct bus_set_digital_io_event);
         char buffer[buflen];
         struct bus_set_digital_io_event* ev = get_bus_set_digital_io_event(buffer);
@@ -332,7 +333,8 @@ int mainboard::set_digital_outputs(uint8_t bits)
         bhdr->saddr = htole16(my_addr);
         bhdr->daddr = 0;
         bhdr->dtype = htole16(DT_IO);
-
+	bhdr->opcode.op = htole16(BUSOP_EVENT);
+	
         evhdr->timestamp = 0;
         evhdr->type = htole16(EV_SET_OUTPUTS);
 

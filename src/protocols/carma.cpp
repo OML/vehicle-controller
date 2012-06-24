@@ -21,11 +21,12 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
-
+#include <cstdlib>
 
 #include <dirent.h>
 #include <endian.h>
 
+#include <errno.h>
 
 #include "client.h"
 
@@ -84,6 +85,19 @@ int carma::read_keepalive()
         return 0;
 }
 
+static void play(const std::string& file)
+{
+	std::string fp = "/home/oml/vehicle-controller/resources/sounds/";
+	fp += file;
+	if(fork() == 0) {
+//		std::cout << "Play " << fp << std::endl;
+//		errno = 0;
+		execl("/usr/bin/aplay", "aplay", fp.c_str(), NULL);
+//		std::cout << strerror(errno) << std::endl;
+		exit(0);
+	}
+}
+
 int carma::read_sync()
 {
         carma_sync_request pack;
@@ -102,6 +116,27 @@ int carma::read_sync()
         MAINBOARD->set_throttle((pack.speed == 1), pack.left, pack.right);
        
         MAINBOARD->set_digital_outputs(pack.io_bits);
+
+	switch(le16toh(pack.sound)) {
+		case 1:
+			play("fla22k_04_loop.wav");
+			break;
+		case 2:
+			play("perfect.wav");
+			break;
+		case 3:
+			play("regeneration.wav");
+			break;
+		case 4:
+			play("humiliation.wav");
+			break;
+		case 5:
+			play("takenlead.wav");
+			break;
+		default:
+			break;
+	}
+
         return 0;
 }
 
