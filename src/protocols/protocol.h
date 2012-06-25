@@ -37,6 +37,7 @@ class protocol
 
 
                 virtual void motor_sensors_event(unsigned long int timestamp, motor_data ev[2]) = 0;
+		virtual void gyro_event(unsigned long int timestamp, int16_t axis[2]) = 0;
 	protected:
                 client* cl;
 };

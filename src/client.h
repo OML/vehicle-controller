@@ -44,6 +44,7 @@ class client: public ufile
 		ssize_t peek(char* buffer, size_t size);
 
 		static void incoming_motor_sensors_event(unsigned long int timestamp, motor_data ev[4]);
+		static void incoming_gyro_event(unsigned long int timestamp, int16_t axis[2]);
 	friend class event_loop;
 	protected:
 

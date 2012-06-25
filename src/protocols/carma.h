@@ -121,6 +121,7 @@ class carma: public protocol
                 int                     calibrate(uint16_t motors[4]);
 
                 void motor_sensors_event(unsigned long int timestamp, motor_data ev[4]);
+		void gyro_event(unsigned long int timestamp, int16_t axis[2]);
         private:
                 int                     read_report();
                 int                     read_sync();

@@ -254,3 +254,11 @@ void carma::motor_sensors_event(unsigned long int timestamp, motor_data ev[4])
 //	std::cout << ev[0].current << ", " << ev[0].voltage << ", " << ev[0].temperature << std::endl;
         cl->write(reinterpret_cast<char*>(&response), sizeof(response));
 }
+
+void carma::gyro_event(unsigned long int timestamp, int16_t axis[2])
+{
+	response.gyro[0] = axis[0];
+	response.gyro[1] = axis[1];
+	response.opcode.op = COP_SYNC;
+	cl->write(reinterpret_cast<char*>(&response), sizeof(response));
+}

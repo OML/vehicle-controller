@@ -78,3 +78,12 @@ void client::incoming_motor_sensors_event(unsigned long int timestamp, motor_dat
 	                (*it)->proto->motor_sensors_event(timestamp, ev);
         }
 }
+
+void client::incoming_gyro_event(unsigned long int timestamp, int16_t axis[2])
+{
+	std::list<client*>::iterator it;
+	for(it = clients.begin(); it != clients.end(); it++) {
+		if((*it)->proto)
+			(*it)->proto->gyro_event(timestamp, axis);
+	}
+}

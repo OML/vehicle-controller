@@ -19,6 +19,7 @@
 #include "server.h"
 #include "event_loop.h"
 #include "mainboard.h"
+#include "meas.h"
 
 #include <memory>
 #include <iostream>
@@ -34,11 +35,12 @@ std::string gpl =
         "under certain conditions; run with `-c' for details.\n";
 
 const char* ttyS0 = "/dev/ttyS0";
+const char* ttyS1 = "/dev/ttyS1";
 
 int port = 1337;
 const char* progname = NULL;
 const char* mainboard_file = ttyS0;
-
+const char* meas_file = ttyS1;
 
 static void print_helpline(const std::string& sw, const std::string& value)
 {
@@ -116,6 +118,7 @@ int main(int argc, char* argv[])
 
 	server* serv = new server(port);
 	mainboard* main = new mainboard(mainboard_file);
+	meas* me = new meas(meas_file);
 
 	stdin_ep* stdin = new stdin_ep();
 
@@ -123,6 +126,7 @@ int main(int argc, char* argv[])
 
 	delete serv;
 	delete main;
+	delete me;
 	delete stdin;
         delete evl;
 

@@ -75,7 +75,7 @@ void mainboard::open_fifo()
 	opts.c_oflag = 0;
 	opts.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
 	opts.c_cflag &= ~(CSIZE | PARENB);
-	opts.c_cflag |= CS8 | CREAD | B19200;
+	opts.c_cflag |= CS8 | CREAD | B38400;
 	opts.c_cc[VMIN] = 1;
 	opts.c_cc[VTIME] = 0;
 
@@ -286,6 +286,7 @@ int mainboard::set_throttle(bool fast, int left, int right)
 {
 //	uint16_t motors[4] = {100, 100, 100, 100};
 //	calibrate((uint16_t*)&motors);
+	std::cout << "Set throttles "  << left << ", " << right << std::endl;
 	
         size_t psize = (size_t)get_bus_set_motor_driver(NULL) + sizeof(bus_set_motor_driver);
         char buffer[psize];

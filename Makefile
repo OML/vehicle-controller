@@ -41,7 +41,8 @@ SOURCES=$(GPTK_SOURCES) \
 	main.cpp \
 	protocols/carma.cpp \
 	protocols/protocol.cpp \
-	mainboard.cpp
+	mainboard.cpp \
+	meas.cpp
 OBJECTS=$(SOURCES:%.cpp=$(OBJDIR)/%.o)
 
 default: build
